@@ -1,1 +1,3 @@
-- Remove JmeIoLib
++ if thread interrupted then fire InterruptedException from LuaClosure
+- remove CoroutineLib - starting coroutines in scripts will result in threads that are not under the server control
+- remove JmeIoLib - jme too legacy platform for me

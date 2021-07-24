@@ -63,7 +63,6 @@ import java.lang.ref.WeakReference;
  * @see LuaValue
  * @see org.luaj.vm2.lib.jse.JsePlatform
  * @see org.luaj.vm2.lib.jme.JmePlatform
- * @see org.luaj.vm2.lib.CoroutineLib
  */
 public class LuaThread extends LuaValue {
 

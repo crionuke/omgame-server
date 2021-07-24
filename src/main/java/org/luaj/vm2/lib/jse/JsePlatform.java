@@ -27,7 +27,6 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.Bit32Lib;
-import org.luaj.vm2.lib.CoroutineLib;
 import org.luaj.vm2.lib.DebugLib;
 import org.luaj.vm2.lib.PackageLib;
 import org.luaj.vm2.lib.ResourceFinder;
@@ -66,7 +65,6 @@ import org.luaj.vm2.lib.TableLib;
  * <li>{@link Bit32Lib}</li>
  * <li>{@link TableLib}</li>
  * <li>{@link StringLib}</li>
- * <li>{@link CoroutineLib}</li>
  * <li>{@link JseMathLib}</li>
  * <li>{@link JseIoLib}</li>
  * <li>{@link JseOsLib}</li>
@@ -98,7 +96,6 @@ public class JsePlatform {
 		globals.load(new Bit32Lib());
 		globals.load(new TableLib());
 		globals.load(new JseStringLib());
-		globals.load(new CoroutineLib());
 		globals.load(new JseMathLib());
 		globals.load(new JseIoLib());
 		globals.load(new JseOsLib());

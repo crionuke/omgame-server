@@ -23,12 +23,9 @@ package org.luaj.vm2.lib.jme;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LoadState;
-import org.luaj.vm2.LuaThread;
-import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.BaseLib;
 import org.luaj.vm2.lib.Bit32Lib;
-import org.luaj.vm2.lib.CoroutineLib;
 import org.luaj.vm2.lib.DebugLib;
 import org.luaj.vm2.lib.MathLib;
 import org.luaj.vm2.lib.OsLib;
@@ -77,7 +74,6 @@ import org.luaj.vm2.lib.TableLib;
  * <li>{@link Bit32Lib}</li>
  * <li>{@link TableLib}</li>
  * <li>{@link StringLib}</li>
- * <li>{@link CoroutineLib}</li>
  * <li>{@link MathLib}</li>
  * <li>{@link OsLib}</li>
  * </ul>
@@ -110,7 +106,6 @@ public class JmePlatform {
 		globals.load(new MathLib());
 		globals.load(new TableLib());
 		globals.load(new StringLib());
-		globals.load(new CoroutineLib());
 		LoadState.install(globals);
 		LuaC.install(globals);
 		return globals;		

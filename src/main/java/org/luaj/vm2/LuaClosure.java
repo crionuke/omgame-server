@@ -198,6 +198,9 @@ public class LuaClosure extends LuaFunction {
 		// process instructions
 		try {
 			for (; true; ++pc) {
+				if (Thread.currentThread().isInterrupted())
+					throw new InterruptedException();
+
 				if (globals != null && globals.debuglib != null)
 					globals.debuglib.onInstruction( pc, v, top );
 				

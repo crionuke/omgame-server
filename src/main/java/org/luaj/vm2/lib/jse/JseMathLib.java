@@ -50,7 +50,6 @@ import org.luaj.vm2.lib.TwoArgFunction;
  * globals.load(new JseMathLib());
  * System.out.println( globals.get("math").get("sqrt").call( LuaValue.valueOf(2) ) );
  * } </pre>
- * <p>However, other libraries such as <em>CoroutineLib</em> are not loaded in this case.
  * <p>
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * @see LibFunction
