@@ -37,9 +37,6 @@ import org.luaj.vm2.Varargs;
  * <p>
  * It contains the implementation of the io library support that is common to
  * the JSE and JME platforms.
- * In practice on of the concrete IOLib subclasses is chosen:
- * {@link org.luaj.vm2.lib.jse.JseIoLib} for the JSE platform, and
- * {@link org.luaj.vm2.lib.jme.JmeIoLib} for the JME platform.
  * <p>
  * The JSE implementation conforms almost completely to the C-based lua library,
  * while the JME implementation follows closely except in the area of random-access files,
@@ -70,7 +67,6 @@ import org.luaj.vm2.Varargs;
  * @see org.luaj.vm2.lib.jse.JsePlatform
  * @see org.luaj.vm2.lib.jme.JmePlatform
  * @see org.luaj.vm2.lib.jse.JseIoLib
- * @see org.luaj.vm2.lib.jme.JmeIoLib
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.7">http://www.lua.org/manual/5.1/manual.html#5.7</a>
  */
 abstract

@@ -45,7 +45,6 @@ import org.luaj.vm2.lib.TableLib;
  * <li>Some math functions are not implemented, see {@link MathLib} for details</li>
  * <li>Scripts are loaded via Class.getResourceAsStream(), see {@link BaseLib} for details</li>
  * <li>OS functions execute(), remove(), rename(), and tmpname() vary, see {@link OsLib} for details</li>
- * <li>I/O seek is not implemented, see {@link JmeIoLib} for details</li>
  * <li>luajava is not available, see {@link org.luaj.vm2.lib.jse.LuajavaLib} for details</li>
  * </ul>
  * <p>
@@ -80,7 +79,6 @@ import org.luaj.vm2.lib.TableLib;
  * <li>{@link StringLib}</li>
  * <li>{@link CoroutineLib}</li>
  * <li>{@link MathLib}</li>
- * <li>{@link JmeIoLib}</li>
  * <li>{@link OsLib}</li>
  * </ul>
  * In addition, the {@link LuaC} compiler is installed so lua files may be loaded in their source form. 
@@ -113,7 +111,6 @@ public class JmePlatform {
 		globals.load(new TableLib());
 		globals.load(new StringLib());
 		globals.load(new CoroutineLib());
-		globals.load(new JmeIoLib());
 		LoadState.install(globals);
 		LuaC.install(globals);
 		return globals;		

@@ -66,7 +66,6 @@ import org.luaj.vm2.lib.LibFunction;
  * @see JsePlatform
  * @see org.luaj.vm2.lib.jme.JmePlatform
  * @see IoLib
- * @see org.luaj.vm2.lib.jme.JmeIoLib
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.8">Lua 5.2 I/O Lib Reference</a>
  */
 public class JseIoLib extends IoLib {
