@@ -5,4 +5,4 @@ omgameserver:
   websocket:
     bufferSize: 1024
   luaRuntime:
-    script: "server.lua"
+    script: "examples/franticSky/server/server.lua"

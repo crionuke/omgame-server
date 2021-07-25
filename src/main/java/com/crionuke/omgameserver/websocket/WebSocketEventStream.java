@@ -1,7 +1,6 @@
 package com.crionuke.omgameserver.websocket;
 
 import com.crionuke.omgameserver.websocket.events.WebSocketEvent;
-import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
