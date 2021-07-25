@@ -11,19 +11,19 @@ public class LuaPlatformTest extends Assertions {
     LuaPlatform luaPlatform;
 
     @BeforeEach
-    public void before() {
+    void beforeEach() {
         luaPlatform = new LuaPlatform();
     }
 
     @Test
-    public void testLoadScript() {
+    void testLoadScript() {
         String script = "return 1";
         LuaValue chunk = luaPlatform.loadScript("return1", script);
         assertEquals(1, chunk.call().checknumber().tolong());
     }
 
     @Test
-    public void testInterruptScript() throws InterruptedException {
+    void testInterruptScript() throws InterruptedException {
         // Lua infinity script
         String script = """
                 local i = 0;
