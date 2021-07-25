@@ -7,6 +7,10 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
 public class LuaPrintFunction extends VarArgFunction {
     private static final Logger LOG = Logger.getLogger(LuaPrintFunction.class);
 

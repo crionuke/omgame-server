@@ -5,6 +5,10 @@ import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
 class LuaWorker implements Runnable {
     private static final Logger LOG = Logger.getLogger(WebSocketEventStream.class);
 
@@ -19,11 +23,15 @@ class LuaWorker implements Runnable {
 
     @Override
     public void run() {
+        String threadOldName = Thread.currentThread().getName();
+        Thread.currentThread().setName(chunkName);
         try {
             // TODO: infinity loop, events, etc
             luaChunk.call();
         } catch (LuaError luaError) {
             LOG.infof("Lua chunk failed, name=%s, reason=%s", chunkName, luaError.getMessage());
+        } finally {
+            Thread.currentThread().setName(threadOldName);
         }
     }
 }

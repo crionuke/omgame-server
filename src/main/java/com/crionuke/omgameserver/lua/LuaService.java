@@ -9,6 +9,10 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
 @Startup
 @ApplicationScoped
 public class LuaService {
