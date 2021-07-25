@@ -23,6 +23,13 @@ public class LuaPlatformTest extends Assertions {
     }
 
     @Test
+    void testLoadFile() {
+        String filePath = "return1.lua";
+        LuaValue chunk = luaPlatform.loadFile(filePath);
+        assertEquals(1, chunk.call().checknumber().tolong());
+    }
+
+    @Test
     void testInterruptScript() throws InterruptedException {
         // Lua infinity script
         String script = """
