@@ -1,1 +1,1 @@
-print("server started")
+print("Game started")

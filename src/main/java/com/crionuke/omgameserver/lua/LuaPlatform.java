@@ -53,6 +53,8 @@ class LuaPlatform {
         globals.load(new TableLib());
         globals.load(new JseStringLib());
         globals.load(new JseMathLib());
+        // Override print function to output through logger
+        globals.set("print", new LuaPrintFunction(globals));
         return globals;
     }
 
