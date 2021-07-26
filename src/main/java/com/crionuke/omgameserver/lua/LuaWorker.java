@@ -1,6 +1,5 @@
 package com.crionuke.omgameserver.lua;
 
-import com.crionuke.omgameserver.websocket.WebSocketEventStream;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
@@ -10,7 +9,7 @@ import org.luaj.vm2.LuaValue;
  * @version 1.0.0
  */
 class LuaWorker implements Runnable {
-    private static final Logger LOG = Logger.getLogger(WebSocketEventStream.class);
+    private static final Logger LOG = Logger.getLogger(LuaWorker.class);
 
     private final String chunkName;
     private final LuaValue luaChunk;
