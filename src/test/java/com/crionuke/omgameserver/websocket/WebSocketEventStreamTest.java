@@ -1,5 +1,6 @@
 package com.crionuke.omgameserver.websocket;
 
+import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionOpenedEvent;
 import io.quarkus.test.junit.QuarkusTest;
 import org.jboss.logging.Logger;
@@ -38,7 +39,7 @@ public class WebSocketEventStreamTest extends Assertions {
         }, failure -> fail());
         for (int i = 0; i < 100; i++) {
             webSocketEventStream.fire(new WebSocketSessionOpenedEvent(new StubWebSocketSession(),
-                    TEST_TENANT_ID, TEST_GAME_ID, TEST_WORKER_ID));
+                    new Address(TEST_TENANT_ID, TEST_GAME_ID, TEST_WORKER_ID)));
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {

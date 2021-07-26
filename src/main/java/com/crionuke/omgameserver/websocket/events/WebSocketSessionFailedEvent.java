@@ -1,5 +1,7 @@
 package com.crionuke.omgameserver.websocket.events;
 
+import com.crionuke.omgameserver.core.Address;
+
 import javax.websocket.Session;
 
 /**
@@ -8,7 +10,7 @@ import javax.websocket.Session;
  */
 public class WebSocketSessionFailedEvent extends WebSocketEvent {
 
-    public WebSocketSessionFailedEvent(Session session, String tenantId, String gameId, String workerId) {
-        super(session, tenantId, gameId, workerId);
+    public WebSocketSessionFailedEvent(Session session, Address address) {
+        super(session, address);
     }
 }

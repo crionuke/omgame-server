@@ -1,5 +1,7 @@
 package com.crionuke.omgameserver.websocket.events;
 
+import com.crionuke.omgameserver.core.Address;
+
 import javax.websocket.Session;
 
 /**
@@ -10,9 +12,8 @@ public class WebSocketMessageReceivedEvent extends WebSocketEvent {
 
     final String message;
 
-    public WebSocketMessageReceivedEvent(Session session, String message,
-                                         String tenantId, String gameId, String workerId) {
-        super(session, tenantId, gameId, workerId);
+    public WebSocketMessageReceivedEvent(Session session, String message, Address address) {
+        super(session, address);
         this.message = message;
     }
 

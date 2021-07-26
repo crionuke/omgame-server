@@ -1,5 +1,6 @@
 package com.crionuke.omgameserver.websocket.events;
 
+import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.core.Event;
 
 import javax.websocket.Session;
@@ -11,30 +12,18 @@ import javax.websocket.Session;
 public abstract class WebSocketEvent extends Event {
 
     final Session session;
-    final String tenantId;
-    final String gameId;
-    final String workerId;
+    final Address address;
 
-    public WebSocketEvent(Session session, String tenantId, String gameId, String workerId) {
+    public WebSocketEvent(Session session, Address address) {
         this.session = session;
-        this.tenantId = tenantId;
-        this.gameId = gameId;
-        this.workerId = workerId;
+        this.address = address;
     }
 
     public Session getSession() {
         return session;
     }
 
-    public String getTenantId() {
-        return tenantId;
-    }
-
-    public String getGameId() {
-        return gameId;
-    }
-
-    public String getWorkerId() {
-        return workerId;
+    public Address getAddress() {
+        return address;
     }
 }
