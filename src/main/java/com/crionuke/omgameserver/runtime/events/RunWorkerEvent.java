@@ -2,6 +2,10 @@ package com.crionuke.omgameserver.runtime.events;
 
 import com.crionuke.omgameserver.core.Address;
 
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
 public class RunWorkerEvent extends RuntimeEvent {
 
     final String script;

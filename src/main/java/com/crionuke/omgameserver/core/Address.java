@@ -2,6 +2,10 @@ package com.crionuke.omgameserver.core;
 
 import java.util.Objects;
 
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
 public final class Address {
 
     final String tenant;

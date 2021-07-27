@@ -3,7 +3,6 @@ package com.crionuke.omgameserver.runtime.bootstrap;
 import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.runtime.events.RunWorkerEvent;
 import com.crionuke.omgameserver.runtime.events.RuntimeEvent;
-import io.quarkus.arc.properties.IfBuildProperty;
 import io.smallrye.mutiny.Multi;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
