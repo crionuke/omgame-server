@@ -1,7 +1,7 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Service;
+import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.bootstrap.Bootstrap;
 import com.crionuke.omgameserver.runtime.events.RunWorkerEvent;
@@ -24,8 +24,8 @@ import java.util.concurrent.Executors;
  */
 @Startup
 @ApplicationScoped
-public class LuaService extends Service {
-    static final Logger LOG = Logger.getLogger(LuaService.class);
+public class LuaHandler extends Handler {
+    static final Logger LOG = Logger.getLogger(LuaHandler.class);
 
     final Bootstrap bootstrap;
     final RuntimeDispatcher runtimeDispatcher;
@@ -33,8 +33,8 @@ public class LuaService extends Service {
     final Map<Address, LuaWorker> routes;
     final ExecutorService workersExecutor;
 
-    LuaService(Bootstrap bootstrap, RuntimeDispatcher runtimeDispatcher) {
-        super(LuaService.class.getSimpleName());
+    LuaHandler(Bootstrap bootstrap, RuntimeDispatcher runtimeDispatcher) {
+        super(LuaHandler.class.getSimpleName());
         this.bootstrap = bootstrap;
         this.runtimeDispatcher = runtimeDispatcher;
         luaPlatform = new LuaPlatform();

@@ -9,18 +9,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public abstract class Service {
+public abstract class Handler {
 
-    final String serviceName;
+    final String handlerName;
     final Executor selfExecutor;
 
-    public Service() {
-        this.serviceName = Service.class.getSimpleName();
+    public Handler() {
+        this.handlerName = Handler.class.getSimpleName();
         selfExecutor = Executors.newSingleThreadExecutor(new ServiceThreadFactory());
     }
 
-    public Service(String serviceName) {
-        this.serviceName = serviceName;
+    public Handler(String handlerName) {
+        this.handlerName = handlerName;
         selfExecutor = Executors.newSingleThreadExecutor(new ServiceThreadFactory());
     }
 
@@ -34,7 +34,7 @@ public abstract class Service {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);
-            thread.setName(serviceName + "-" + threadCounter.incrementAndGet());
+            thread.setName(handlerName + "-" + threadCounter.incrementAndGet());
             return thread;
         }
     }
