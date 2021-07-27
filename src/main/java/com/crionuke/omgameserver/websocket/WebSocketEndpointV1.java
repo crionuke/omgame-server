@@ -17,51 +17,47 @@ import javax.websocket.server.ServerEndpoint;
  * @version 1.0.0
  */
 @ApplicationScoped
-@ServerEndpoint("/omgameserver/v1/{tenantId}/games/{gameId}/workers/{workerId}/websocket")
+@ServerEndpoint("/omgameserver/v1/{tenant}/games/{game}/workers/{worker}/websocket")
 class WebSocketEndpointV1 {
-    private static final Logger LOG = Logger.getLogger(WebSocketEndpointV1.class);
+    static final Logger LOG = Logger.getLogger(WebSocketEndpointV1.class);
 
-    final WebSocketEventStream websocketEventStream;
+    final WebSocketDispatcher websocketDispatcher;
 
-    WebSocketEndpointV1(WebSocketEventStream websocketEventStream) {
-        this.websocketEventStream = websocketEventStream;
+    WebSocketEndpointV1(WebSocketDispatcher websocketDispatcher) {
+        this.websocketDispatcher = websocketDispatcher;
         LOG.infof("Created");
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("tenantId") String tenantId,
-                       @PathParam("gameId") String gameId,
-                       @PathParam("workerId") String workerId) {
-        LOG.infof("Session opened, sessionId=%s, tenantId=%s, gameId=%s, workerId=%s",
-                session.getId(), tenantId, gameId, workerId);
-        websocketEventStream.fire(new WebSocketSessionOpenedEvent(session, new Address(tenantId, gameId, workerId)));
+    public void onOpen(Session session, @PathParam("tenant") String tenant,
+                       @PathParam("game") String game, @PathParam("worker") String worker) {
+        LOG.infof("Session opened, sessionId=%s, tenant=%s, game=%s, worker=%s",
+                session.getId(), tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketSessionOpenedEvent(session, new Address(tenant, game, worker)));
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("tenantId") String tenantId,
-                        @PathParam("gameId") String gameId,
-                        @PathParam("workerId") String workerId) {
-        LOG.infof("Session closed, sessionId=%s, tenantId=%s, gameId=%s, workerId=%s",
-                session.getId(), tenantId, gameId, workerId);
-        websocketEventStream.fire(new WebSocketSessionClosedEvent(session, new Address(tenantId, gameId, workerId)));
+    public void onClose(Session session, @PathParam("tenant") String tenant,
+                        @PathParam("game") String game, @PathParam("worker") String worker) {
+        LOG.infof("Session closed, sessionId=%s, tenant=%s, game=%s, worker=%s",
+                session.getId(), tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketSessionClosedEvent(session, new Address(tenant, game, worker)));
     }
 
     @OnError
-    public void onError(Session session, Throwable throwable, @PathParam("tenantId") String tenantId,
-                        @PathParam("gameId") String gameId,
-                        @PathParam("workerId") String workerId) {
-        LOG.infof("Session failed, sessionId=%s, tenantId=%s, gameId=%s, workerId=%s",
-                session.getId(), tenantId, gameId, workerId);
-        websocketEventStream.fire(new WebSocketSessionFailedEvent(session, new Address(tenantId, gameId, workerId)));
+    public void onError(Session session, Throwable throwable, @PathParam("tenant") String tenant,
+                        @PathParam("game") String game, @PathParam("worker") String worker) {
+        LOG.infof("Session failed, sessionId=%s, tenant=%s, game=%s, worker=%s",
+                session.getId(), tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketSessionFailedEvent(session, new Address(tenant, game, worker)));
     }
 
     @OnMessage
-    public void onMessage(String message, Session session, @PathParam("tenantId") String tenantId,
-                          @PathParam("gameId") String gameId,
-                          @PathParam("workerId") String workerId) {
-        LOG.debugf("Message received, sessionId=%s, tenantId=%s, gameId=%s, workerId=%s",
-                session.getId(), tenantId, gameId, workerId);
-        websocketEventStream.fire(new WebSocketMessageReceivedEvent(session, message,
-                new Address(tenantId, gameId, workerId)));
+    public void onMessage(String message, Session session, @PathParam("tenant") String tenant,
+                          @PathParam("game") String game, @PathParam("worker") String worker) {
+        LOG.debugf("Message received, sessionId=%s, tenant=%s, game=%s, worker=%s",
+                session.getId(), tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketMessageReceivedEvent(session, message,
+                new Address(tenant, game, worker)));
     }
 }

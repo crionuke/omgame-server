@@ -3,6 +3,12 @@ quarkus:
     port: 10000
 omgameserver:
   websocket:
+    bufferSize: 128
+  runtime:
     bufferSize: 1024
-  luaRuntime:
-    script: "examples/franticSky/server/server.lua"
+    bootstrap:
+      script: "examples/franticSky/server/server.lua"
+      address:
+        tenant: "crionuke"
+        game: "franticSky"
+        worker: "lobby"

@@ -1,4 +1,4 @@
-package com.crionuke.omgameserver.lua;
+package com.crionuke.omgameserver.runtime.lua;
 
 import org.jboss.logging.Logger;
 import org.luaj.vm2.Globals;

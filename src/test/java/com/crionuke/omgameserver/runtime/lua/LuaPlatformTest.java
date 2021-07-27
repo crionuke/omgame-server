@@ -1,4 +1,4 @@
-package com.crionuke.omgameserver.lua;
+package com.crionuke.omgameserver.runtime.lua;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

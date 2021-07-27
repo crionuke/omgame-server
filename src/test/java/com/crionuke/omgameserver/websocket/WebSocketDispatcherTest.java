@@ -19,8 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @QuarkusTest
-public class WebSocketEventStreamTest extends Assertions {
-    private static final Logger LOG = Logger.getLogger(WebSocketEventStreamTest.class);
+public class WebSocketDispatcherTest extends Assertions {
+    private static final Logger LOG = Logger.getLogger(WebSocketDispatcherTest.class);
 
     private static final String TEST_TENANT_ID = "crionuke";
     private static final String TEST_GAME_ID = "hostagecrisis";
@@ -28,9 +28,9 @@ public class WebSocketEventStreamTest extends Assertions {
 
     @Test
     void overflowTest() {
-        WebSocketEventStream webSocketEventStream = new WebSocketEventStream(1);
+        WebSocketDispatcher webSocketDispatcher = new WebSocketDispatcher(1);
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        webSocketEventStream.getMulti().emitOn(executor).subscribe().with(event -> {
+        webSocketDispatcher.getMulti().emitOn(executor).subscribe().with(event -> {
             LOG.infof("Got event, sessionId=%s", event.getSession().getId());
             try {
                 Thread.sleep(100);
@@ -38,7 +38,7 @@ public class WebSocketEventStreamTest extends Assertions {
             }
         }, failure -> fail());
         for (int i = 0; i < 100; i++) {
-            webSocketEventStream.fire(new WebSocketSessionOpenedEvent(new StubWebSocketSession(),
+            webSocketDispatcher.fire(new WebSocketSessionOpenedEvent(new StubWebSocketSession(),
                     new Address(TEST_TENANT_ID, TEST_GAME_ID, TEST_WORKER_ID)));
             try {
                 Thread.sleep(10);

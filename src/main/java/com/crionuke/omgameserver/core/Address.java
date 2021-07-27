@@ -4,35 +4,35 @@ import java.util.Objects;
 
 public final class Address {
 
-    private final String tenantId;
-    private final String gameId;
-    private final String workerId;
+    final String tenant;
+    final String game;
+    final String worker;
 
-    public Address(String tenantId, String gameId, String workerId) {
-        if (tenantId == null) {
-            throw new NullPointerException("tenantId is null");
+    public Address(String tenant, String game, String worker) {
+        if (tenant == null) {
+            throw new NullPointerException("tenant is null");
         }
-        if (gameId == null) {
-            throw new NullPointerException("gameId is null");
+        if (game == null) {
+            throw new NullPointerException("game is null");
         }
-        if (workerId == null) {
-            throw new NullPointerException("workerId is null");
+        if (worker == null) {
+            throw new NullPointerException("worker is null");
         }
-        this.tenantId = tenantId;
-        this.gameId = gameId;
-        this.workerId = workerId;
+        this.tenant = tenant;
+        this.game = game;
+        this.worker = worker;
     }
 
-    public String getTenantId() {
-        return tenantId;
+    public String getTenant() {
+        return tenant;
     }
 
-    public String getGameId() {
-        return gameId;
+    public String getGame() {
+        return game;
     }
 
-    public String getWorkerId() {
-        return workerId;
+    public String getWorker() {
+        return worker;
     }
 
     @Override
@@ -40,20 +40,24 @@ public final class Address {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Address address = (Address) o;
-        return tenantId.equals(address.tenantId) && gameId.equals(address.gameId) && workerId.equals(address.workerId);
+        return tenant.equals(address.tenant) && game.equals(address.game) && worker.equals(address.worker);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tenantId, gameId, workerId);
+        return Objects.hash(tenant, game, worker);
+    }
+
+    public String asPath() {
+        return tenant + "/" + game + "/" + worker;
     }
 
     @Override
     public String toString() {
         return "Address{" +
-                "tenantId='" + tenantId + '\'' +
-                ", gameId='" + gameId + '\'' +
-                ", workerId='" + workerId + '\'' +
+                "tenant='" + tenant + '\'' +
+                ", game='" + game + '\'' +
+                ", worker='" + worker + '\'' +
                 '}';
     }
 }

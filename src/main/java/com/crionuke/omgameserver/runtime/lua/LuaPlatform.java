@@ -1,4 +1,4 @@
-package com.crionuke.omgameserver.lua;
+package com.crionuke.omgameserver.runtime.lua;
 
 import org.jboss.logging.Logger;
 import org.luaj.vm2.*;
@@ -15,9 +15,9 @@ import org.luaj.vm2.lib.jse.JseStringLib;
  * @version 1.0.0
  */
 class LuaPlatform {
-    private static final Logger LOG = Logger.getLogger(LuaPlatform.class);
+    static final Logger LOG = Logger.getLogger(LuaPlatform.class);
 
-    private final Globals serverGlobal;
+    final Globals serverGlobal;
 
     LuaPlatform() {
         // Create server globals with just enough library support to compile user scripts.
@@ -29,7 +29,6 @@ class LuaPlatform {
         LuaC.install(serverGlobal);
         // Set up the LuaString metatable to be read-only since it is shared across all scripts.
         LuaString.s_metatable = new ReadOnlyLuaTable(LuaString.s_metatable);
-        LOG.info("Created");
     }
 
     public LuaValue loadScript(String chunkName, String script) {
@@ -45,7 +44,7 @@ class LuaPlatform {
                 "@" + filePath, "bt", userGlobals);
     }
 
-    private Globals createUserGlobals() {
+    Globals createUserGlobals() {
         Globals globals = new Globals();
         globals.load(new JseBaseLib());
         globals.load(new PackageLib());
@@ -58,7 +57,8 @@ class LuaPlatform {
         return globals;
     }
 
-    static private class ReadOnlyLuaTable extends LuaTable {
+    class ReadOnlyLuaTable extends LuaTable {
+
         public ReadOnlyLuaTable(LuaValue table) {
             presize(table.length(), 0);
             for (Varargs n = table.next(LuaValue.NIL); !n.arg1().isnil(); n = table
@@ -69,22 +69,27 @@ class LuaPlatform {
             }
         }
 
+        @Override
         public LuaValue setmetatable(LuaValue metatable) {
             return error("table is read-only");
         }
 
+        @Override
         public void set(int key, LuaValue value) {
             error("table is read-only");
         }
 
+        @Override
         public void rawset(int key, LuaValue value) {
             error("table is read-only");
         }
 
+        @Override
         public void rawset(LuaValue key, LuaValue value) {
             error("table is read-only");
         }
 
+        @Override
         public LuaValue remove(int pos) {
             return error("table is read-only");
         }
