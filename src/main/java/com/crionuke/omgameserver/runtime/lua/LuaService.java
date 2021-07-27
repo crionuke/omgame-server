@@ -48,10 +48,9 @@ public class LuaService extends Service {
         Multi<RuntimeEvent> events = Multi.createBy().concatenating()
                 // Handle first bootstrap events, next runtime
                 .streams(bootstrap.getMulti(), runtimeDispatcher.getMulti())
-                .emitOn(getSelfExecutor())
-                .log(this.getClass().getSimpleName());
+                .emitOn(getSelfExecutor());
         events.filter(event -> event instanceof RunWorkerEvent)
-                .onItem().castTo(RunWorkerEvent.class).subscribe().with(event -> handleRunWorkerEvent(event));
+                .onItem().castTo(RunWorkerEvent.class).log().subscribe().with(event -> handleRunWorkerEvent(event));
     }
 
     void handleRunWorkerEvent(RunWorkerEvent event) {

@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Service {
+public abstract class Service {
 
     final String serviceName;
     final Executor selfExecutor;
@@ -25,7 +25,7 @@ public class Service {
     }
 
     class ServiceThreadFactory implements ThreadFactory {
-        static private AtomicLong threadCounter = new AtomicLong();
+        static private final AtomicLong threadCounter = new AtomicLong();
 
         @Override
         public Thread newThread(Runnable r) {
