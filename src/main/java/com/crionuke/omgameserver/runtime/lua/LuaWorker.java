@@ -1,38 +1,68 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.core.Address;
+import com.crionuke.omgameserver.core.Handler;
+import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
+import com.crionuke.omgameserver.runtime.events.StartWorkerEvent;
+import com.crionuke.omgameserver.runtime.events.RuntimeEvent;
+import com.crionuke.omgameserver.runtime.events.TickEvent;
+import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-class LuaWorker implements Runnable {
+class LuaWorker extends Handler {
     static final Logger LOG = Logger.getLogger(LuaWorker.class);
 
     final Address address;
-    final LuaValue luaChunk;
+    final LuaChunk luaChunk;
+    final RuntimeDispatcher runtimeDispatcher;
 
-    LuaWorker(Address address, LuaValue luaChunk) {
+    LuaWorker(Address address, LuaChunk luaChunk, RuntimeDispatcher runtimeDispatcher) {
+        super(LuaWorker.class.getSimpleName());
         this.address = address;
         this.luaChunk = luaChunk;
+        this.runtimeDispatcher = runtimeDispatcher;
         LOG.infof("Created, address=%s", address);
     }
 
-    @Override
-    public void run() {
-        String addressAsPath = address.asPath();
-        String threadOldName = Thread.currentThread().getName();
-        Thread.currentThread().setName(addressAsPath);
+    void postConstruct() {
+        Multi<RuntimeEvent> events = runtimeDispatcher.getMulti()
+                .emitOn(getSelfExecutor());
+        events.filter(event -> event instanceof StartWorkerEvent)
+                .onItem().castTo(StartWorkerEvent.class)
+                .filter(event -> event.getAddress().equals(address))
+                .log().subscribe().with(event -> handleStartWorkerEvent(event));
+        events.filter(event -> event instanceof TickEvent)
+                .onItem().castTo(TickEvent.class)
+                .subscribe().with(event -> handleTickEvent(event));
+    }
+
+    void handleStartWorkerEvent(StartWorkerEvent event) {
         try {
-            // TODO: infinity loop, events, etc
-            luaChunk.call();
+            luaChunk.getChunk().call();
         } catch (LuaError luaError) {
-            LOG.infof("Lua chunk failed, name=%s, reason=%s", addressAsPath, luaError.getMessage());
-        } finally {
-            Thread.currentThread().setName(threadOldName);
+            LOG.warnf("Worker failed, address=%s, reason=%s", address.asPath(), luaError.getMessage());
+        }
+    }
+
+    void handleTickEvent(TickEvent event) {
+        LuaTable luaEvent = new LuaTable();
+        luaEvent.set("id", "tick");
+        luaEvent.set("tick", event.getTick());
+        dispatch("tick", luaEvent);
+    }
+
+    void dispatch(String id, LuaValue luaEvent) {
+        try {
+            luaChunk.getRuntime().dispatch(id, luaEvent);
+        } catch (LuaError luaError) {
+            LOG.warnf("Worker failed, address=%s, reason=%s", address.asPath(), luaError.getMessage());
         }
     }
 }

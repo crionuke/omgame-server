@@ -11,10 +11,10 @@ import org.luaj.vm2.lib.VarArgFunction;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class LuaPrintFunction extends VarArgFunction {
-    private static final Logger LOG = Logger.getLogger(LuaPrintFunction.class);
+class LuaPrintFunction extends VarArgFunction {
+    static final Logger LOG = Logger.getLogger(LuaPrintFunction.class);
 
-    private final LuaValue tostring;
+    final LuaValue tostring;
 
     LuaPrintFunction(Globals globals) {
         tostring = globals.get("tostring");

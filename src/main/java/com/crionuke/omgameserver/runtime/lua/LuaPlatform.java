@@ -31,20 +31,24 @@ class LuaPlatform {
         LuaString.s_metatable = new ReadOnlyLuaTable(LuaString.s_metatable);
     }
 
-    public LuaValue loadScript(String chunkName, String script) {
-        Globals userGlobals = createUserGlobals();
+    public LuaChunk loadScript(String chunkName, String script) {
+        LuaRuntime runtime = new LuaRuntime();
+        Globals userGlobals = createUserGlobals(runtime);
         LOG.infof("Load script, chunkName=%s, script=%s", chunkName, script);
-        return serverGlobal.load(script, chunkName, userGlobals);
+        LuaValue chunk = serverGlobal.load(script, chunkName, userGlobals);
+        return new LuaChunk(userGlobals, runtime, chunk);
     }
 
-    public LuaValue loadFile(String filePath) {
-        Globals userGlobals = createUserGlobals();
+    public LuaChunk loadFile(String filePath) {
+        LuaRuntime runtime = new LuaRuntime();
+        Globals userGlobals = createUserGlobals(runtime);
         LOG.infof("Load file, filePath=%s", filePath);
-        return serverGlobal.load(serverGlobal.finder.findResource(filePath),
+        LuaValue chunk = serverGlobal.load(serverGlobal.finder.findResource(filePath),
                 "@" + filePath, "bt", userGlobals);
+        return new LuaChunk(userGlobals, runtime, chunk);
     }
 
-    Globals createUserGlobals() {
+    Globals createUserGlobals(LuaRuntime luaRuntime) {
         Globals globals = new Globals();
         globals.load(new JseBaseLib());
         globals.load(new PackageLib());
@@ -52,8 +56,12 @@ class LuaPlatform {
         globals.load(new TableLib());
         globals.load(new JseStringLib());
         globals.load(new JseMathLib());
+        // TODO: Loading and compiling scripts from within scripts may also be prohibited
+        LoadState.install(globals);
+        LuaC.install(globals);
         // Override print function to output through logger
         globals.set("print", new LuaPrintFunction(globals));
+        globals.set("runtime", luaRuntime);
         return globals;
     }
 

@@ -1,7 +1,7 @@
 package com.crionuke.omgameserver.runtime.bootstrap;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.runtime.events.RunWorkerEvent;
+import com.crionuke.omgameserver.runtime.events.CreateWorkerEvent;
 import com.crionuke.omgameserver.runtime.events.RuntimeEvent;
 import io.smallrye.mutiny.Multi;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -31,7 +31,7 @@ public class Bootstrap {
 
     public Multi<RuntimeEvent> getMulti() {
         return Multi.createFrom().emitter(emitter -> {
-            emitter.emit(new RunWorkerEvent(script, address));
+            emitter.emit(new CreateWorkerEvent(script, address));
             emitter.complete();
         });
     }

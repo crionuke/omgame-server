@@ -18,10 +18,14 @@ import java.time.Duration;
 public class RuntimeDispatcher extends Dispatcher<RuntimeEvent> {
     static final Logger LOG = Logger.getLogger(RuntimeDispatcher.class);
 
+    final int tickEveryMillis;
+
     public RuntimeDispatcher(
-            @ConfigProperty(name = "omgameserver.runtime.bufferSize", defaultValue = "1024") int bufferSize) {
+            @ConfigProperty(name = "omgameserver.runtime.bufferSize", defaultValue = "1024") int bufferSize,
+            @ConfigProperty(name = "omgameserver.runtime.tickEveryMillis", defaultValue = "100") int tickEveryMillis) {
         super(bufferSize, false);
-        LOG.infof("Created, bufferSize=%d", bufferSize);
+        this.tickEveryMillis = tickEveryMillis;
+        LOG.infof("Created, bufferSize=%d, tickEveryMillis=%d", bufferSize, tickEveryMillis);
     }
 
     @Override
@@ -30,7 +34,8 @@ public class RuntimeDispatcher extends Dispatcher<RuntimeEvent> {
         return Multi.createBy().merging().streams(getTicks(), super.getMulti());
     }
 
-    public Multi<RuntimeEvent> getTicks() {
-        return Multi.createFrom().ticks().every(Duration.ofMillis(100)).onItem().transform(tick -> new TickEvent(tick));
+    Multi<RuntimeEvent> getTicks() {
+        return Multi.createFrom().ticks().every(Duration.ofMillis(tickEveryMillis))
+                .onItem().transform(tick -> new TickEvent(tick));
     }
 }

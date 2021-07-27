@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
 
 public class LuaPlatformTest extends Assertions {
 
@@ -18,15 +17,15 @@ public class LuaPlatformTest extends Assertions {
     @Test
     void testLoadScript() {
         String script = "return 1";
-        LuaValue chunk = luaPlatform.loadScript("return1", script);
-        assertEquals(1, chunk.call().checknumber().tolong());
+        LuaChunk luaChunk = luaPlatform.loadScript("return1", script);
+        assertEquals(1, luaChunk.getChunk().call().checknumber().tolong());
     }
 
     @Test
     void testLoadFile() {
         String filePath = "return1.lua";
-        LuaValue chunk = luaPlatform.loadFile(filePath);
-        assertEquals(1, chunk.call().checknumber().tolong());
+        LuaChunk luaChunk = luaPlatform.loadFile(filePath);
+        assertEquals(1, luaChunk.getChunk().call().checknumber().tolong());
     }
 
     @Test
@@ -38,10 +37,10 @@ public class LuaPlatformTest extends Assertions {
                     i = i + 1
                 end
                 """;
-        LuaValue chunk = luaPlatform.loadScript("testInterruptScript", script);
+        LuaChunk luaChunk = luaPlatform.loadScript("testInterruptScript", script);
         Thread t = new Thread(() -> {
             try {
-                chunk.call();
+                luaChunk.getChunk().call();
             } catch (LuaError e) {
                 e.printStackTrace();
             }

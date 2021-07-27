@@ -1,11 +1,16 @@
 quarkus:
   http:
     port: 10000
+  log:
+    category:
+      "com.crionuke.omgameserver":
+        level: DEBUG
 omgameserver:
   websocket:
     bufferSize: 128
   runtime:
     bufferSize: 1024
+    tickEveryMillis: 1000
     bootstrap:
       script: "examples/franticSky/server/server.lua"
       address:
