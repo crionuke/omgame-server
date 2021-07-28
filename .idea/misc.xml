@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="Quarkus" url="file://$PROJECT_DIR$/integration-tests" />
+    <file type="Quarkus" url="file://$PROJECT_DIR$/omgameserver" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/integration-tests/pom.xml" />
+        <option value="$PROJECT_DIR$/omgameserver/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="adopt-openjdk-16" project-jdk-type="JavaSDK" />
+</project>
