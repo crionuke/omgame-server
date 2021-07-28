@@ -17,7 +17,7 @@ import javax.websocket.server.ServerEndpoint;
  * @version 1.0.0
  */
 @ApplicationScoped
-@ServerEndpoint("/omgameserver/v1/{tenant}/games/{game}/workers/{worker}/websocket")
+@ServerEndpoint("/omgameserver/v1/ws/{tenant}/{game}/{worker}")
 class WebSocketEndpointV1 {
     static final Logger LOG = Logger.getLogger(WebSocketEndpointV1.class);
 

@@ -7,4 +7,4 @@ quarkus:
         level: DEBUG
 integrationTests:
   echoServer:
-    webSocketEndpoint: "http://localhost:10000/omgameserver/v1/crionuke/games/echoserver/workers/main/websocket"
+    webSocketEndpoint: "http://localhost:10000/omgameserver/v1/ws/crionuke/echoserver/main"
