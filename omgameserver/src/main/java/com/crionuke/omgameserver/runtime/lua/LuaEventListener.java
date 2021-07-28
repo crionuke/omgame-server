@@ -18,7 +18,6 @@ class LuaEventListener extends LuaTable {
     static final Logger LOG = Logger.getLogger(LuaEventListener.class);
 
     final String FUNCTION_ADD_EVENT_LISTENER = "add_event_listener";
-    final String FUNCTION_REMOVE_EVENT_LISTENER = "remove_event_listener";
 
     final Map<LuaString, Set<LuaFunction>> functional;
     final Map<LuaString, Set<LuaTable>> tabulated;
@@ -28,7 +27,6 @@ class LuaEventListener extends LuaTable {
         functional = new HashMap<>();
         tabulated = new HashMap<>();
         set(FUNCTION_ADD_EVENT_LISTENER, new LuaAddEventListenerFunction(functional, tabulated));
-        set(FUNCTION_REMOVE_EVENT_LISTENER, new LuaRemoveEventListenerFunction(functional, tabulated));
     }
 
     void dispatch(String id, LuaValue event) {
