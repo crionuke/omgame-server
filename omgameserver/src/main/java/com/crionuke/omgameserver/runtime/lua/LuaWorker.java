@@ -4,11 +4,10 @@ import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.events.*;
+import com.crionuke.omgameserver.runtime.lua.events.*;
 import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -44,16 +43,21 @@ class LuaWorker extends Handler {
         addressedEvents.filter(event -> event instanceof StartWorkerEvent)
                 .onItem().castTo(StartWorkerEvent.class)
                 .subscribe().with(event -> handleStartWorkerEvent(event));
+        addressedEvents.filter(event -> event instanceof ClientCreatedEvent)
+                .onItem().castTo(ClientCreatedEvent.class)
+                .subscribe().with(event -> handleClientCreatedEvent(event));
         addressedEvents.filter(event -> event instanceof MessageReceivedEvent)
                 .onItem().castTo(MessageReceivedEvent.class)
                 .subscribe().with(event -> handleMessageReceivedEvent(event));
+        addressedEvents.filter(event -> event instanceof ClientRemovedEvent)
+                .onItem().castTo(ClientRemovedEvent.class)
+                .subscribe().with(event -> handleClientRemovedEvent(event));
     }
 
     void handleTickEvent(TickEvent event) {
-        LuaTable luaEvent = new LuaTable();
-        luaEvent.set("id", "tick");
-        luaEvent.set("tick", event.getTick());
-        dispatch("tick", luaEvent);
+        long tick = event.getTick();
+        LuaTickEvent luaTickEvent = new LuaTickEvent(tick);
+        dispatch(luaTickEvent);
     }
 
     void handleStartWorkerEvent(StartWorkerEvent event) {
@@ -64,17 +68,28 @@ class LuaWorker extends Handler {
         }
     }
 
-    void handleMessageReceivedEvent(MessageReceivedEvent event) {
-        LuaTable luaEvent = new LuaTable();
-        luaEvent.set("id", "message_received");
-        luaEvent.set("client_id", event.getClient().getId());
-        luaEvent.set("message", event.getMessage());
-        dispatch("message_received", luaEvent);
+    void handleClientCreatedEvent(ClientCreatedEvent event) {
+        long clientId = event.getClient().getId();
+        LuaClientCreatedEvent luaEvent = new LuaClientCreatedEvent(clientId);
+        dispatch(luaEvent);
     }
 
-    void dispatch(String id, LuaValue luaEvent) {
+    void handleMessageReceivedEvent(MessageReceivedEvent event) {
+        long clientId = event.getClient().getId();
+        String message = event.getMessage();
+        LuaMessageReceivedEvent luaEvent = new LuaMessageReceivedEvent(clientId, message);
+        dispatch(luaEvent);
+    }
+
+    void handleClientRemovedEvent(ClientRemovedEvent event) {
+        long clientId = event.getClient().getId();
+        LuaClientRemovedEvent luaEvent = new LuaClientRemovedEvent(clientId);
+        dispatch(luaEvent);
+    }
+
+    void dispatch(LuaEvent luaEvent) {
         try {
-            luaChunk.getRuntime().dispatch(id, luaEvent);
+            luaChunk.getRuntime().dispatch(luaEvent.getId(), luaEvent);
         } catch (LuaError luaError) {
             LOG.warnf("Worker failed, address=%s, reason=%s", address.asPath(), luaError.getMessage());
         }

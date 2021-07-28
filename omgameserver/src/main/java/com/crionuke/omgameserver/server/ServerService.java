@@ -4,6 +4,8 @@ import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.core.Client;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
+import com.crionuke.omgameserver.runtime.events.ClientCreatedEvent;
+import com.crionuke.omgameserver.runtime.events.ClientRemovedEvent;
 import com.crionuke.omgameserver.runtime.events.MessageReceivedEvent;
 import com.crionuke.omgameserver.websocket.WebSocketDispatcher;
 import com.crionuke.omgameserver.websocket.events.*;
@@ -57,6 +59,8 @@ public class ServerService extends Handler {
         Client client = new Client();
         webSocketClients.put(session, client);
         LOG.infof("WebSocket client created, client=%s", client);
+        Address address = event.getAddress();
+        runtimeDispatcher.fire(new ClientCreatedEvent(client, address));
     }
 
     void handleWebSocketMessageReceivedEvent(WebSocketMessageReceivedEvent event) {
@@ -75,7 +79,9 @@ public class ServerService extends Handler {
         Session session = event.getSession();
         if (webSocketClients.containsKey(session)) {
             Client client = webSocketClients.remove(session);
-            LOG.infof("WebSocket client failed, client=%s", client);
+            Address address = event.getAddress();
+            LOG.infof("WebSocket client failed, client=%s, address=%s", client, address);
+            runtimeDispatcher.fire(new ClientRemovedEvent(client, address));
         }
     }
 
@@ -83,7 +89,9 @@ public class ServerService extends Handler {
         Session session = event.getSession();
         if (webSocketClients.containsKey(session)) {
             Client client = webSocketClients.remove(session);
-            LOG.infof("WebSocket client closed, client=%s", client);
+            Address address = event.getAddress();
+            LOG.infof("WebSocket client closed, client=%s, address=%s", client, address);
+            runtimeDispatcher.fire(new ClientRemovedEvent(client, address));
         }
     }
 }
