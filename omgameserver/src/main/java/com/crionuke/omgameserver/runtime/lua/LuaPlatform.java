@@ -1,5 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
+import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LuaC;
@@ -17,9 +18,11 @@ import org.luaj.vm2.lib.jse.JseStringLib;
 class LuaPlatform {
     static final Logger LOG = Logger.getLogger(LuaPlatform.class);
 
+    final RuntimeDispatcher runtimeDispatcher;
     final Globals serverGlobal;
 
-    LuaPlatform() {
+    LuaPlatform(RuntimeDispatcher runtimeDispatcher) {
+        this.runtimeDispatcher = runtimeDispatcher;
         // Create server globals with just enough library support to compile user scripts.
         serverGlobal = new Globals();
         serverGlobal.load(new JseBaseLib());
@@ -32,7 +35,7 @@ class LuaPlatform {
     }
 
     public LuaChunk loadScript(String chunkName, String script) {
-        LuaRuntime runtime = new LuaRuntime();
+        LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
         Globals userGlobals = createUserGlobals(runtime);
         LOG.infof("Load script, chunkName=%s, script=%s", chunkName, script);
         LuaValue chunk = serverGlobal.load(script, chunkName, userGlobals);
@@ -40,7 +43,7 @@ class LuaPlatform {
     }
 
     public LuaChunk loadFile(String filePath) {
-        LuaRuntime runtime = new LuaRuntime();
+        LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
         Globals userGlobals = createUserGlobals(runtime);
         LOG.infof("Load file, filePath=%s", filePath);
         LuaValue chunk = serverGlobal.load(serverGlobal.finder.findResource(filePath),

@@ -10,6 +10,7 @@ end
 
 function server:message_received(event)
     print(event.id, event.client_id, event.message)
+    runtime.send_message(event.client_id, event.message)
 end
 
 function server:client_removed(event)

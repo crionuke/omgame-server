@@ -1,18 +1,15 @@
 package com.crionuke.omgameserver.runtime.events;
 
-import com.crionuke.omgameserver.core.Address;
-
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class MessageReceivedEvent extends AddressedEvent {
+public class SendMessageEvent extends RuntimeEvent {
 
     final long clientId;
     final String message;
 
-    public MessageReceivedEvent(long clientId, Address address, String message) {
-        super(address);
+    public SendMessageEvent(long clientId, String message) {
         this.clientId = clientId;
         this.message = message;
     }
@@ -27,9 +24,8 @@ public class MessageReceivedEvent extends AddressedEvent {
 
     @Override
     public String toString() {
-        return "MessageReceivedEvent{" +
-                "address=" + address +
-                ", clientId=" + clientId +
+        return "SendMessageEvent{" +
+                "clientId=" + clientId +
                 ", message='" + message + '\'' +
                 '}';
     }

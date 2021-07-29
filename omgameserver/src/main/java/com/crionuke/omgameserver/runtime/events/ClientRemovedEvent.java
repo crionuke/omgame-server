@@ -1,7 +1,6 @@
 package com.crionuke.omgameserver.runtime.events;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Client;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -9,22 +8,22 @@ import com.crionuke.omgameserver.core.Client;
  */
 public class ClientRemovedEvent extends AddressedEvent {
 
-    final Client client;
+    final long clientId;
 
-    public ClientRemovedEvent(Client client, Address address) {
+    public ClientRemovedEvent(long clientId, Address address) {
         super(address);
-        this.client = client;
+        this.clientId = clientId;
     }
 
-    public Client getClient() {
-        return client;
+    public long getClientId() {
+        return clientId;
     }
 
     @Override
     public String toString() {
         return "ClientRemovedEvent{" +
                 "address=" + address +
-                ", client=" + client +
+                ", clientId=" + clientId +
                 '}';
     }
 }

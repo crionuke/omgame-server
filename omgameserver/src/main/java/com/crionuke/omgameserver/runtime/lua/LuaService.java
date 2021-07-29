@@ -34,7 +34,7 @@ public class LuaService extends Handler {
         super(LuaService.class.getSimpleName());
         this.bootstrap = bootstrap;
         this.runtimeDispatcher = runtimeDispatcher;
-        luaPlatform = new LuaPlatform();
+        luaPlatform = new LuaPlatform(runtimeDispatcher);
         routes = new HashMap<>();
         LOG.infof("Created");
     }

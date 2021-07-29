@@ -1,12 +1,9 @@
 package com.crionuke.omgameserver.server;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Client;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
-import com.crionuke.omgameserver.runtime.events.ClientCreatedEvent;
-import com.crionuke.omgameserver.runtime.events.ClientRemovedEvent;
-import com.crionuke.omgameserver.runtime.events.MessageReceivedEvent;
+import com.crionuke.omgameserver.runtime.events.*;
 import com.crionuke.omgameserver.websocket.WebSocketDispatcher;
 import com.crionuke.omgameserver.websocket.events.*;
 import io.quarkus.runtime.Startup;
@@ -16,8 +13,6 @@ import org.jboss.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -30,46 +25,52 @@ public class ServerService extends Handler {
 
     final WebSocketDispatcher webSocketDispatcher;
     final RuntimeDispatcher runtimeDispatcher;
-    final Map<Session, Client> webSocketClients;
+    final WebSocketClientTable clientTable;
 
     ServerService(WebSocketDispatcher webSocketDispatcher, RuntimeDispatcher runtimeDispatcher) {
         super(ServerService.class.getSimpleName());
         this.webSocketDispatcher = webSocketDispatcher;
         this.runtimeDispatcher = runtimeDispatcher;
-        webSocketClients = new HashMap<>();
+        clientTable = new WebSocketClientTable();
         LOG.infof("Created");
     }
 
     @PostConstruct
     void postConstruct() {
-        Multi<WebSocketEvent> events = webSocketDispatcher.getMulti()
+        Multi<WebSocketEvent> webSocketEvents = webSocketDispatcher.getMulti()
                 .emitOn(getSelfExecutor());
-        events.filter(event -> event instanceof WebSocketSessionOpenedEvent)
+        webSocketEvents.filter(event -> event instanceof WebSocketSessionOpenedEvent)
                 .onItem().castTo(WebSocketSessionOpenedEvent.class).log().subscribe().with(event -> handleWebSocketSessionOpenedEvent(event));
-        events.filter(event -> event instanceof WebSocketMessageReceivedEvent)
+        webSocketEvents.filter(event -> event instanceof WebSocketMessageReceivedEvent)
                 .onItem().castTo(WebSocketMessageReceivedEvent.class).log().subscribe().with(event -> handleWebSocketMessageReceivedEvent(event));
-        events.filter(event -> event instanceof WebSocketSessionFailedEvent)
+        webSocketEvents.filter(event -> event instanceof WebSocketSessionFailedEvent)
                 .onItem().castTo(WebSocketSessionFailedEvent.class).log().subscribe().with(event -> handleWebSocketSessionFailedEvent(event));
-        events.filter(event -> event instanceof WebSocketSessionClosedEvent)
+        webSocketEvents.filter(event -> event instanceof WebSocketSessionClosedEvent)
                 .onItem().castTo(WebSocketSessionClosedEvent.class).log().subscribe().with(event -> handleWebSocketSessionClosedEvent(event));
+
+        Multi<RuntimeEvent> runtimeEvents = runtimeDispatcher.getMulti()
+                .emitOn(getSelfExecutor());
+        runtimeEvents.filter(event -> event instanceof SendMessageEvent)
+                .onItem().castTo(SendMessageEvent.class).log().subscribe().with(event -> handleSendMessageEvent(event));
+
     }
 
     void handleWebSocketSessionOpenedEvent(WebSocketSessionOpenedEvent event) {
         Session session = event.getSession();
-        Client client = new Client();
-        webSocketClients.put(session, client);
-        LOG.infof("WebSocket client created, client=%s", client);
+        WebSocketClient webSocketClient = new WebSocketClient(session);
+        clientTable.put(webSocketClient);
+        LOG.infof("WebSocket client created, webSocketClient=%s", webSocketClient);
         Address address = event.getAddress();
-        runtimeDispatcher.fire(new ClientCreatedEvent(client, address));
+        runtimeDispatcher.fire(new ClientCreatedEvent(webSocketClient.getId(), address));
     }
 
     void handleWebSocketMessageReceivedEvent(WebSocketMessageReceivedEvent event) {
         Session session = event.getSession();
-        if (webSocketClients.containsKey(session)) {
-            Client client = webSocketClients.get(session);
+        if (clientTable.contain(session)) {
+            WebSocketClient client = clientTable.get(session);
             Address address = event.getAddress();
             String message = event.getMessage();
-            runtimeDispatcher.fire(new MessageReceivedEvent(client, address, message));
+            runtimeDispatcher.fire(new MessageReceivedEvent(client.getId(), address, message));
         } else {
             LOG.infof("WebSocket client not found, session=%s", session);
         }
@@ -77,21 +78,33 @@ public class ServerService extends Handler {
 
     void handleWebSocketSessionFailedEvent(WebSocketSessionFailedEvent event) {
         Session session = event.getSession();
-        if (webSocketClients.containsKey(session)) {
-            Client client = webSocketClients.remove(session);
+        if (clientTable.contain(session)) {
+            WebSocketClient client = clientTable.get(session);
+            clientTable.remove(client);
             Address address = event.getAddress();
-            LOG.infof("WebSocket client failed, client=%s, address=%s", client, address);
-            runtimeDispatcher.fire(new ClientRemovedEvent(client, address));
+            LOG.infof("WebSocket client removed, client=%s, address=%s", client, address);
+            runtimeDispatcher.fire(new ClientRemovedEvent(client.getId(), address));
         }
     }
 
     void handleWebSocketSessionClosedEvent(WebSocketSessionClosedEvent event) {
         Session session = event.getSession();
-        if (webSocketClients.containsKey(session)) {
-            Client client = webSocketClients.remove(session);
+        if (clientTable.contain(session)) {
+            WebSocketClient client = clientTable.get(session);
+            clientTable.remove(client);
             Address address = event.getAddress();
-            LOG.infof("WebSocket client closed, client=%s, address=%s", client, address);
-            runtimeDispatcher.fire(new ClientRemovedEvent(client, address));
+            LOG.infof("WebSocket client removed, client=%s, address=%s", client, address);
+            runtimeDispatcher.fire(new ClientRemovedEvent(client.getId(), address));
+        }
+    }
+
+    void handleSendMessageEvent(SendMessageEvent event) {
+        long clientId = event.getClientId();
+        if (clientTable.contain(clientId)) {
+            WebSocketClient client = clientTable.get(clientId);
+            Session session = client.getSession();
+            String message = event.getMessage();
+            session.getAsyncRemote().sendText(message);
         }
     }
 }

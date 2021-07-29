@@ -7,4 +7,5 @@ quarkus:
         level: DEBUG
 integrationTests:
   echoServer:
+    timeoutInMillis: 1000
     webSocketEndpoint: "http://localhost:10000/omgameserver/v1/ws/crionuke/echoserver/main"

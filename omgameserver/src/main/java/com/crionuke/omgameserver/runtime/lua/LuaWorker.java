@@ -69,20 +69,20 @@ class LuaWorker extends Handler {
     }
 
     void handleClientCreatedEvent(ClientCreatedEvent event) {
-        long clientId = event.getClient().getId();
+        long clientId = event.getClientId();
         LuaClientCreatedEvent luaEvent = new LuaClientCreatedEvent(clientId);
         dispatch(luaEvent);
     }
 
     void handleMessageReceivedEvent(MessageReceivedEvent event) {
-        long clientId = event.getClient().getId();
+        long clientId = event.getClientId();
         String message = event.getMessage();
         LuaMessageReceivedEvent luaEvent = new LuaMessageReceivedEvent(clientId, message);
         dispatch(luaEvent);
     }
 
     void handleClientRemovedEvent(ClientRemovedEvent event) {
-        long clientId = event.getClient().getId();
+        long clientId = event.getClientId();
         LuaClientRemovedEvent luaEvent = new LuaClientRemovedEvent(clientId);
         dispatch(luaEvent);
     }

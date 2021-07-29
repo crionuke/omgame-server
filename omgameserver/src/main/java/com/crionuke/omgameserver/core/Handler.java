@@ -1,7 +1,5 @@
 package com.crionuke.omgameserver.core;
 
-import com.crionuke.omgameserver.runtime.events.MessageReceivedEvent;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
