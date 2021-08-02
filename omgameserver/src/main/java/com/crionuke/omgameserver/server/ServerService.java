@@ -6,13 +6,17 @@ import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.events.*;
 import com.crionuke.omgameserver.websocket.WebSocketDispatcher;
 import com.crionuke.omgameserver.websocket.events.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
+import org.luaj.vm2.LuaValue;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
+import java.io.IOException;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -25,12 +29,15 @@ public class ServerService extends Handler {
 
     final WebSocketDispatcher webSocketDispatcher;
     final RuntimeDispatcher runtimeDispatcher;
+    final ObjectMapper objectMapper;
     final WebSocketClientTable clientTable;
 
-    ServerService(WebSocketDispatcher webSocketDispatcher, RuntimeDispatcher runtimeDispatcher) {
+    ServerService(WebSocketDispatcher webSocketDispatcher, RuntimeDispatcher runtimeDispatcher,
+                  ObjectMapper objectMapper) {
         super(ServerService.class.getSimpleName());
         this.webSocketDispatcher = webSocketDispatcher;
         this.runtimeDispatcher = runtimeDispatcher;
+        this.objectMapper = objectMapper;
         clientTable = new WebSocketClientTable();
         LOG.infof("Created");
     }
@@ -50,9 +57,8 @@ public class ServerService extends Handler {
 
         Multi<RuntimeEvent> runtimeEvents = runtimeDispatcher.getMulti()
                 .emitOn(getSelfExecutor());
-        runtimeEvents.filter(event -> event instanceof SendMessageEvent)
-                .onItem().castTo(SendMessageEvent.class).log().subscribe().with(event -> handleSendMessageEvent(event));
-
+        runtimeEvents.filter(event -> event instanceof SendEvent)
+                .onItem().castTo(SendEvent.class).log().subscribe().with(event -> handleSendEvent(event));
     }
 
     void handleWebSocketSessionOpenedEvent(WebSocketSessionOpenedEvent event) {
@@ -70,7 +76,13 @@ public class ServerService extends Handler {
             WebSocketClient client = clientTable.get(session);
             Address address = event.getAddress();
             String message = event.getMessage();
-            runtimeDispatcher.fire(new MessageReceivedEvent(client.getId(), address, message));
+            try {
+                LuaValue luaValue = objectMapper.readValue(message, LuaValue.class);
+                runtimeDispatcher.fire(new MessageReceivedEvent(client.getId(), address, luaValue));
+            } catch (IOException e) {
+                LOG.debugf("Wrong json message, client=%s", client);
+            }
+
         } else {
             LOG.infof("WebSocket client not found, session=%s", session);
         }
@@ -98,13 +110,17 @@ public class ServerService extends Handler {
         }
     }
 
-    void handleSendMessageEvent(SendMessageEvent event) {
+    void handleSendEvent(SendEvent event) {
         long clientId = event.getClientId();
         if (clientTable.contain(clientId)) {
             WebSocketClient client = clientTable.get(clientId);
             Session session = client.getSession();
-            String message = event.getMessage();
-            session.getAsyncRemote().sendText(message);
+            try {
+                String message = objectMapper.writeValueAsString(event.getLuaValue());
+                session.getAsyncRemote().sendText(message);
+            } catch (JsonProcessingException e) {
+                LOG.infof("Json serialization failed, %s", e.getMessage());
+            }
         }
     }
 }

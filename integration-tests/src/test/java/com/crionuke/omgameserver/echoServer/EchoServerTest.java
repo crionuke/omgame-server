@@ -17,7 +17,7 @@ public class EchoServerTest extends Assertions {
     void echoServerTest() throws Exception {
         echoServerClient.connect();
         for (int i = 0; i < 10; i++) {
-            String clientMessage = UUID.randomUUID().toString();
+            String clientMessage = String.format("{\"uuid\":\"%s\"}", UUID.randomUUID().toString());
             echoServerClient.send(clientMessage);
             String serverResponse = echoServerClient.receive();
             assertEquals(clientMessage, serverResponse);

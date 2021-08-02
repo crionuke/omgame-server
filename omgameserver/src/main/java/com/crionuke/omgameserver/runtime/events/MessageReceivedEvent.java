@@ -1,6 +1,7 @@
 package com.crionuke.omgameserver.runtime.events;
 
 import com.crionuke.omgameserver.core.Address;
+import org.luaj.vm2.LuaValue;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -9,20 +10,20 @@ import com.crionuke.omgameserver.core.Address;
 public class MessageReceivedEvent extends AddressedEvent {
 
     final long clientId;
-    final String message;
+    final LuaValue luaValue;
 
-    public MessageReceivedEvent(long clientId, Address address, String message) {
+    public MessageReceivedEvent(long clientId, Address address, LuaValue luaValue) {
         super(address);
         this.clientId = clientId;
-        this.message = message;
+        this.luaValue = luaValue;
     }
 
     public long getClientId() {
         return clientId;
     }
 
-    public String getMessage() {
-        return message;
+    public LuaValue getLuaValue() {
+        return luaValue;
     }
 
     @Override
@@ -30,7 +31,6 @@ public class MessageReceivedEvent extends AddressedEvent {
         return "MessageReceivedEvent{" +
                 "address=" + address +
                 ", clientId=" + clientId +
-                ", message='" + message + '\'' +
                 '}';
     }
 }

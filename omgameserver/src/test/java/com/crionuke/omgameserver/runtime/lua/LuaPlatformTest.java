@@ -1,6 +1,5 @@
 package com.crionuke.omgameserver.runtime.lua;
 
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,7 @@ public class LuaPlatformTest extends Assertions {
 
     @BeforeEach
     void beforeEach() {
-        RuntimeDispatcher runtimeDispatcher = new RuntimeDispatcher(1024, 100);
-        luaPlatform = new LuaPlatform(runtimeDispatcher);
+        luaPlatform = new LuaPlatform();
     }
 
     @Test

@@ -8,6 +8,7 @@ import com.crionuke.omgameserver.runtime.lua.events.*;
 import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaValue;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -76,8 +77,8 @@ class LuaWorker extends Handler {
 
     void handleMessageReceivedEvent(MessageReceivedEvent event) {
         long clientId = event.getClientId();
-        String message = event.getMessage();
-        LuaMessageReceivedEvent luaEvent = new LuaMessageReceivedEvent(clientId, message);
+        LuaValue luaValue = event.getLuaValue();
+        LuaMessageReceivedEvent luaEvent = new LuaMessageReceivedEvent(clientId, luaValue);
         dispatch(luaEvent);
     }
 

@@ -21,6 +21,10 @@ class LuaPlatform {
     final RuntimeDispatcher runtimeDispatcher;
     final Globals serverGlobal;
 
+    LuaPlatform() {
+        this(new RuntimeDispatcher());
+    }
+
     LuaPlatform(RuntimeDispatcher runtimeDispatcher) {
         this.runtimeDispatcher = runtimeDispatcher;
         // Create server globals with just enough library support to compile user scripts.

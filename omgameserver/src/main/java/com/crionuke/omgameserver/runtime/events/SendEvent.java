@@ -1,32 +1,33 @@
 package com.crionuke.omgameserver.runtime.events;
 
+import org.luaj.vm2.LuaValue;
+
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class SendMessageEvent extends RuntimeEvent {
+public class SendEvent extends RuntimeEvent {
 
     final long clientId;
-    final String message;
+    final LuaValue luaValue;
 
-    public SendMessageEvent(long clientId, String message) {
+    public SendEvent(long clientId, LuaValue luaValue) {
         this.clientId = clientId;
-        this.message = message;
+        this.luaValue = luaValue;
     }
 
     public long getClientId() {
         return clientId;
     }
 
-    public String getMessage() {
-        return message;
+    public LuaValue getLuaValue() {
+        return luaValue;
     }
 
     @Override
     public String toString() {
         return "SendMessageEvent{" +
                 "clientId=" + clientId +
-                ", message='" + message + '\'' +
                 '}';
     }
 }
