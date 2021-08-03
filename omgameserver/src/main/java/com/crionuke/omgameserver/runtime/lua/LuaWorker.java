@@ -1,6 +1,7 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.core.Address;
+import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.events.*;
@@ -30,7 +31,7 @@ class LuaWorker extends Handler {
     }
 
     void postConstruct() {
-        Multi<RuntimeEvent> allEvents = runtimeDispatcher.getMulti()
+        Multi<Event> allEvents = runtimeDispatcher.getMulti()
                 .emitOn(getSelfExecutor());
 
         allEvents.filter(event -> event instanceof TickEvent)
@@ -47,9 +48,9 @@ class LuaWorker extends Handler {
         addressedEvents.filter(event -> event instanceof ClientCreatedEvent)
                 .onItem().castTo(ClientCreatedEvent.class)
                 .subscribe().with(event -> handleClientCreatedEvent(event));
-        addressedEvents.filter(event -> event instanceof MessageReceivedEvent)
-                .onItem().castTo(MessageReceivedEvent.class)
-                .subscribe().with(event -> handleMessageReceivedEvent(event));
+        addressedEvents.filter(event -> event instanceof MessageDecodedEvent)
+                .onItem().castTo(MessageDecodedEvent.class)
+                .subscribe().with(event -> handleMessageDecodedEvent(event));
         addressedEvents.filter(event -> event instanceof ClientRemovedEvent)
                 .onItem().castTo(ClientRemovedEvent.class)
                 .subscribe().with(event -> handleClientRemovedEvent(event));
@@ -71,20 +72,20 @@ class LuaWorker extends Handler {
 
     void handleClientCreatedEvent(ClientCreatedEvent event) {
         long clientId = event.getClientId();
-        LuaClientCreatedEvent luaEvent = new LuaClientCreatedEvent(clientId);
+        LuaConnectedEvent luaEvent = new LuaConnectedEvent(clientId);
         dispatch(luaEvent);
     }
 
-    void handleMessageReceivedEvent(MessageReceivedEvent event) {
+    void handleMessageDecodedEvent(MessageDecodedEvent event) {
         long clientId = event.getClientId();
         LuaValue luaValue = event.getLuaValue();
-        LuaMessageReceivedEvent luaEvent = new LuaMessageReceivedEvent(clientId, luaValue);
+        LuaReceivedEvent luaEvent = new LuaReceivedEvent(clientId, luaValue);
         dispatch(luaEvent);
     }
 
     void handleClientRemovedEvent(ClientRemovedEvent event) {
         long clientId = event.getClientId();
-        LuaClientRemovedEvent luaEvent = new LuaClientRemovedEvent(clientId);
+        LuaDisconnectedEvent luaEvent = new LuaDisconnectedEvent(clientId);
         dispatch(luaEvent);
     }
 

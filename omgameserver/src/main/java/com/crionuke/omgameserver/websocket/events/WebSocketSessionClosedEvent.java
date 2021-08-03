@@ -13,4 +13,11 @@ public class WebSocketSessionClosedEvent extends WebSocketEvent {
     public WebSocketSessionClosedEvent(Session session, Address address) {
         super(session, address);
     }
+
+    @Override
+    public String toString() {
+        return "WebSocketSessionClosedEvent{" +
+                "address=" + address +
+                '}';
+    }
 }

@@ -1,0 +1,80 @@
+package com.crionuke.omgameserver.runtime.json;
+
+import com.crionuke.omgameserver.core.Address;
+import com.crionuke.omgameserver.core.Event;
+import com.crionuke.omgameserver.core.Handler;
+import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
+import com.crionuke.omgameserver.runtime.events.MessageDecodedEvent;
+import com.crionuke.omgameserver.runtime.events.MessageEncodedEvent;
+import com.crionuke.omgameserver.runtime.events.SendLuaValueEvent;
+import com.crionuke.omgameserver.runtime.events.ServerReceivedMessageEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.runtime.Startup;
+import io.smallrye.mutiny.Multi;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+import org.luaj.vm2.LuaValue;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import java.io.IOException;
+
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
+@Startup
+@ApplicationScoped
+public class JsonService extends Handler {
+    static final Logger LOG = Logger.getLogger(JsonService.class);
+
+    static final String DEFAULT_POOL_SIZE = "2";
+
+    final RuntimeDispatcher runtimeDispatcher;
+    final ObjectMapper objectMapper;
+
+    JsonService(@ConfigProperty(name = "omgameserver.runtime.json.poolSize", defaultValue = DEFAULT_POOL_SIZE) int poolSize,
+                RuntimeDispatcher runtimeDispatcher, ObjectMapper objectMapper) {
+        super(poolSize, JsonService.class.getSimpleName());
+        this.runtimeDispatcher = runtimeDispatcher;
+        this.objectMapper = objectMapper;
+        LOG.infof("Created");
+    }
+
+    @PostConstruct
+    void postConstruct() {
+        Multi<Event> events = runtimeDispatcher.getMulti()
+                .emitOn(getSelfExecutor());
+
+        events.filter(event -> event instanceof ServerReceivedMessageEvent)
+                .onItem().castTo(ServerReceivedMessageEvent.class).log().subscribe()
+                .with(event -> handleServerReceivedMessageEvent(event));
+
+        events.filter(event -> event instanceof SendLuaValueEvent)
+                .onItem().castTo(SendLuaValueEvent.class).log().subscribe()
+                .with(event -> handleSendLuaValueEvent(event));
+    }
+
+    void handleServerReceivedMessageEvent(ServerReceivedMessageEvent event) {
+        Address address = event.getAddress();
+        long clientId = event.getClientId();
+        String message = event.getMessage();
+        try {
+            LuaValue luaValue = objectMapper.readValue(message, LuaValue.class);
+            runtimeDispatcher.fire(new MessageDecodedEvent(address, clientId, luaValue));
+        } catch (IOException e) {
+            LOG.debugf("Decode json failed, clientId=%d", clientId);
+        }
+    }
+
+    void handleSendLuaValueEvent(SendLuaValueEvent event) {
+        long clientId = event.getClientId();
+        LuaValue luaValue = event.getLuaValue();
+        try {
+            String message = objectMapper.writeValueAsString(luaValue);
+            runtimeDispatcher.fire(new MessageEncodedEvent(clientId, message));
+        } catch (IOException e) {
+            LOG.debugf("Encode LuaValue failed, clientId=%d, %e", clientId, e);
+        }
+    }
+}

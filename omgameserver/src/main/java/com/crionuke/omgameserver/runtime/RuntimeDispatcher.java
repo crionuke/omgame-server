@@ -1,7 +1,7 @@
 package com.crionuke.omgameserver.runtime;
 
 import com.crionuke.omgameserver.core.Dispatcher;
-import com.crionuke.omgameserver.runtime.events.RuntimeEvent;
+import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.runtime.events.TickEvent;
 import io.smallrye.mutiny.Multi;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -15,7 +15,7 @@ import java.time.Duration;
  * @version 1.0.0
  */
 @ApplicationScoped
-public class RuntimeDispatcher extends Dispatcher<RuntimeEvent> {
+public class RuntimeDispatcher extends Dispatcher {
     static final Logger LOG = Logger.getLogger(RuntimeDispatcher.class);
 
     static final String DEFAULT_BUFFER_SIZE = "1024";
@@ -36,12 +36,12 @@ public class RuntimeDispatcher extends Dispatcher<RuntimeEvent> {
     }
 
     @Override
-    public Multi<RuntimeEvent> getMulti() {
+    public Multi<Event> getMulti() {
         // Mix with ticks
         return Multi.createBy().merging().streams(getTicks(), super.getMulti());
     }
 
-    Multi<RuntimeEvent> getTicks() {
+    Multi<Event> getTicks() {
         return Multi.createFrom().ticks().every(Duration.ofMillis(tickEveryMillis))
                 .onItem().transform(tick -> new TickEvent(tick));
     }

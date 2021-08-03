@@ -1,10 +1,12 @@
 package com.crionuke.omgameserver.runtime.events;
 
+import com.crionuke.omgameserver.core.Event;
+
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class TickEvent extends RuntimeEvent {
+public class TickEvent extends Event {
 
     long tick;
 

@@ -10,7 +10,7 @@ public class ClientCreatedEvent extends AddressedEvent {
 
     final long clientId;
 
-    public ClientCreatedEvent(long clientId, Address address) {
+    public ClientCreatedEvent(Address address, long clientId) {
         super(address);
         this.clientId = clientId;
     }

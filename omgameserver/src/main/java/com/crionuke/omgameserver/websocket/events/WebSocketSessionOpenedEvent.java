@@ -13,4 +13,11 @@ public class WebSocketSessionOpenedEvent extends WebSocketEvent {
     public WebSocketSessionOpenedEvent(Session session, Address address) {
         super(session, address);
     }
+
+    @Override
+    public String toString() {
+        return "WebSocketSessionOpenedEvent{" +
+                "address=" + address +
+                '}';
+    }
 }

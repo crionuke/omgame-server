@@ -11,6 +11,8 @@ omgameserver:
   runtime:
     bufferSize: 1024
     tickEveryMillis: 1000
+    json:
+      poolSize: 2
     bootstrap:
       script: "examples/echoServer/server/server.lua"
       address:

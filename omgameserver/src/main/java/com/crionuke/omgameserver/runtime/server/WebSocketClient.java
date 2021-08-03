@@ -1,4 +1,4 @@
-package com.crionuke.omgameserver.server;
+package com.crionuke.omgameserver.runtime.server;
 
 import com.crionuke.omgameserver.core.Client;
 

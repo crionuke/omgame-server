@@ -1,29 +1,32 @@
 package com.crionuke.omgameserver.runtime.events;
 
 import com.crionuke.omgameserver.core.Address;
-import org.luaj.vm2.LuaValue;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class MessageReceivedEvent extends AddressedEvent {
+public class ServerReceivedMessageEvent extends AddressedEvent {
 
     final long clientId;
-    final LuaValue luaValue;
+    final String message;
 
-    public MessageReceivedEvent(long clientId, Address address, LuaValue luaValue) {
+    public ServerReceivedMessageEvent(Address address, long clientId, String message) {
         super(address);
         this.clientId = clientId;
-        this.luaValue = luaValue;
+        this.message = message;
+    }
+
+    public Address getAddress() {
+        return address;
     }
 
     public long getClientId() {
         return clientId;
     }
 
-    public LuaValue getLuaValue() {
-        return luaValue;
+    public String getMessage() {
+        return message;
     }
 
     @Override

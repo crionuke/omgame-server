@@ -15,13 +15,26 @@ public abstract class Handler {
     final Executor selfExecutor;
 
     public Handler() {
-        this.handlerName = Handler.class.getSimpleName();
-        selfExecutor = Executors.newSingleThreadExecutor(new ServiceThreadFactory());
+        this(1);
+    }
+
+    public Handler(int poolSize) {
+        this(poolSize, Handler.class.getSimpleName());
     }
 
     public Handler(String handlerName) {
+        this(1, handlerName);
+    }
+
+    public Handler(int poolSize, String handlerName) {
         this.handlerName = handlerName;
-        selfExecutor = Executors.newSingleThreadExecutor(new ServiceThreadFactory());
+        if (poolSize == 1) {
+            selfExecutor = Executors.newSingleThreadExecutor(new ServiceThreadFactory());
+        } else if (poolSize > 1) {
+            selfExecutor = Executors.newFixedThreadPool(poolSize, new ServiceThreadFactory());
+        } else {
+            throw new IllegalArgumentException("Wrong pool size, value=" + poolSize);
+        }
     }
 
     public Executor getSelfExecutor() {
@@ -39,3 +52,4 @@ public abstract class Handler {
         }
     }
 }
+

@@ -1,11 +1,11 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.core.Address;
+import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.bootstrap.Bootstrap;
 import com.crionuke.omgameserver.runtime.events.CreateWorkerEvent;
-import com.crionuke.omgameserver.runtime.events.RuntimeEvent;
 import com.crionuke.omgameserver.runtime.events.StartWorkerEvent;
 import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Multi;
@@ -41,7 +41,7 @@ public class LuaService extends Handler {
 
     @PostConstruct
     void postConstruct() {
-        Multi<RuntimeEvent> events = Multi.createBy().concatenating()
+        Multi<Event> events = Multi.createBy().concatenating()
                 // Handle first bootstrap events, next runtime
                 .streams(bootstrap.getMulti(), runtimeDispatcher.getMulti())
                 .emitOn(getSelfExecutor());

@@ -7,10 +7,10 @@ import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public abstract class Dispatcher<T> {
+public abstract class Dispatcher {
 
-    final BroadcastProcessor<T> processor;
-    final Multi<T> multi;
+    final BroadcastProcessor<Event> processor;
+    final Multi<Event> multi;
 
     public Dispatcher() {
         processor = BroadcastProcessor.create();
@@ -30,11 +30,11 @@ public abstract class Dispatcher<T> {
         }
     }
 
-    public Multi<T> getMulti() {
+    public Multi<Event> getMulti() {
         return multi;
     }
 
-    public void fire(T event) {
+    public void fire(Event event) {
         processor.onNext(event);
     }
 }

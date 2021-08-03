@@ -1,4 +1,4 @@
-package com.crionuke.omgameserver.runtime.lua;
+package com.crionuke.omgameserver.runtime.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

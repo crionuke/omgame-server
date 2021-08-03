@@ -1,6 +1,7 @@
-package com.crionuke.omgameserver.websocket;
+package com.crionuke.omgameserver.websocket.endpoints;
 
 import com.crionuke.omgameserver.core.Address;
+import com.crionuke.omgameserver.websocket.WebSocketDispatcher;
 import com.crionuke.omgameserver.websocket.events.WebSocketMessageReceivedEvent;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionClosedEvent;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionFailedEvent;
@@ -31,32 +32,24 @@ class WebSocketEndpointV1 {
     @OnOpen
     public void onOpen(Session session, @PathParam("tenant") String tenant,
                        @PathParam("game") String game, @PathParam("worker") String worker) {
-        LOG.infof("Session opened, sessionId=%s, tenant=%s, game=%s, worker=%s",
-                session.getId(), tenant, game, worker);
         websocketDispatcher.fire(new WebSocketSessionOpenedEvent(session, new Address(tenant, game, worker)));
     }
 
     @OnClose
     public void onClose(Session session, @PathParam("tenant") String tenant,
                         @PathParam("game") String game, @PathParam("worker") String worker) {
-        LOG.infof("Session closed, sessionId=%s, tenant=%s, game=%s, worker=%s",
-                session.getId(), tenant, game, worker);
         websocketDispatcher.fire(new WebSocketSessionClosedEvent(session, new Address(tenant, game, worker)));
     }
 
     @OnError
     public void onError(Session session, Throwable throwable, @PathParam("tenant") String tenant,
                         @PathParam("game") String game, @PathParam("worker") String worker) {
-        LOG.infof("Session failed, sessionId=%s, tenant=%s, game=%s, worker=%s",
-                session.getId(), tenant, game, worker);
         websocketDispatcher.fire(new WebSocketSessionFailedEvent(session, new Address(tenant, game, worker)));
     }
 
     @OnMessage
     public void onMessage(String message, Session session, @PathParam("tenant") String tenant,
                           @PathParam("game") String game, @PathParam("worker") String worker) {
-        LOG.debugf("Message received, message=%s sessionId=%s, tenant=%s, game=%s, worker=%s",
-                message, session.getId(), tenant, game, worker);
         websocketDispatcher.fire(new WebSocketMessageReceivedEvent(session, message,
                 new Address(tenant, game, worker)));
     }

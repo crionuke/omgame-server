@@ -6,18 +6,13 @@ import com.crionuke.omgameserver.core.Address;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class CreateWorkerEvent extends RuntimeEvent {
+public class CreateWorkerEvent extends AddressedEvent {
 
     final String script;
-    final Address address;
 
     public CreateWorkerEvent(String script, Address address) {
+        super(address);
         this.script = script;
-        this.address = address;
-    }
-
-    public Address getAddress() {
-        return address;
     }
 
     public String getScript() {
