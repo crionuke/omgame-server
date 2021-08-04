@@ -64,18 +64,29 @@ public class Bit32Lib extends TwoArgFunction {
 	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
 		LuaTable t = new LuaTable();
-		bind(t, Bit32LibV.class, new String[] {
-			"band", "bnot", "bor", "btest", "bxor", "extract", "replace"
-		});
-		bind(t, Bit32Lib2.class, new String[] {
-			"arshift", "lrotate", "lshift", "rrotate", "rshift"
-		});
+        t.set("band", new Bit32LibV(0, "band"));
+        t.set("bnot", new Bit32LibV(1, "bnot"));
+        t.set("bor", new Bit32LibV(2, "bor"));
+        t.set("btest", new Bit32LibV(3, "btest"));
+        t.set("bxor", new Bit32LibV(4, "bxor"));
+        t.set("extract", new Bit32LibV(5, "extract"));
+        t.set("replace", new Bit32LibV(6, "replace"));
+        t.set("arshift", new Bit32Lib2(0, "arshift"));
+        t.set("lrotate", new Bit32Lib2(1, "lrotate"));
+        t.set("lshift", new Bit32Lib2(2, "lshift"));
+        t.set("rrotate", new Bit32Lib2(3, "rrotate"));
+        t.set("rshift", new Bit32Lib2(4, "rshift"));
 		env.set("bit32", t);
 		if (!env.get("package").isnil()) env.get("package").get("loaded").set("bit32", t);
 		return t;
 	}
 
 	static final class Bit32LibV extends VarArgFunction {
+
+        public Bit32LibV(int opcode, String name) {
+            super(opcode, name);
+        }
+
 		public Varargs invoke(Varargs args) {
 			switch ( opcode ) {
 			case 0: return Bit32Lib.band( args );
@@ -94,6 +105,10 @@ public class Bit32Lib extends TwoArgFunction {
 	}
 
 	static final class Bit32Lib2 extends TwoArgFunction {
+
+        public Bit32Lib2(int opcode, String name) {
+            super(opcode, name);
+        }
 
 		public LuaValue call(LuaValue arg1, LuaValue arg2) {
 			switch ( opcode ) {

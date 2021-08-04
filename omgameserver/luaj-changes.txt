@@ -1,3 +1,4 @@
+- setup bit32 lib with no LibFunction bind methods with reflection
 - IoLib and JseIoLib removed
 - java_searcher removed from PackageLib
 - LuajavaLib, CoerceJavaToLua and CoerceLuaToJava lib removed with JavaArray, JavaClass, JavaConstructor, JavaInstance, JavaMember, JavaMethod helpers

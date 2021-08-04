@@ -53,6 +53,10 @@ abstract public class TwoArgFunction extends LibFunction {
 	/** Default constructor */
 	public TwoArgFunction() {
 	}
+
+	public TwoArgFunction(int opcode, String name) {
+		super(opcode, name);
+	}
 	
 	public final LuaValue call() {
 		return call(NIL, NIL);

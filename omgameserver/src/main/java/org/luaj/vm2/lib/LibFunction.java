@@ -137,47 +137,14 @@ abstract public class LibFunction extends LuaFunction {
 	/** Default constructor for use by subclasses */
 	protected LibFunction() {
 	}
+
+	protected LibFunction(int opcode, String name) {
+		this.opcode = opcode;
+		this.name = name;
+	}
 	
 	public String tojstring() {
 		return name != null ? "function: " + name : super.tojstring();
-	}
-	
-	/**
-	 * Bind a set of library functions.
-	 * <p>
-	 * An array of names is provided, and the first name is bound
-	 * with opcode = 0, second with 1, etc.
-	 * @param env The environment to apply to each bound function
-	 * @param factory the Class to instantiate for each bound function
-	 * @param names array of String names, one for each function.
-	 * @see #bind(LuaValue, Class, String[], int)
-	 */
-	protected void bind(LuaValue env, Class factory,  String[] names ) {
-		bind( env, factory, names, 0 );
-	}
-	
-	/**
-	 * Bind a set of library functions, with an offset
-	 * <p>
-	 * An array of names is provided, and the first name is bound
-	 * with opcode = {@code firstopcode}, second with {@code firstopcode+1}, etc.
-	 * @param env The environment to apply to each bound function
-	 * @param factory the Class to instantiate for each bound function
-	 * @param names array of String names, one for each function.
-	 * @param firstopcode the first opcode to use
-	 * @see #bind(LuaValue, Class, String[])
-	 */
-	protected void bind(LuaValue env, Class factory,  String[] names, int firstopcode ) {
-		try {
-			for ( int i=0, n=names.length; i<n; i++ ) {
-				LibFunction f = (LibFunction) factory.newInstance();
-				f.opcode = firstopcode + i;
-				f.name = names[i];
-				env.set(f.name, f);
-			}
-		} catch ( Exception e ) {
-			throw new LuaError( "bind failed: "+e );
-		}
 	}
 
 	/** Java code generation utility to allocate storage for upvalue, leave it empty */

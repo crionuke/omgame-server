@@ -49,6 +49,10 @@ abstract public class VarArgFunction extends LibFunction {
 
 	public VarArgFunction() {
 	}
+
+	public VarArgFunction(int opcode, String name) {
+		super(opcode, name);
+	}
 	
 	public LuaValue call() {
 		return invoke(NONE).arg1();
