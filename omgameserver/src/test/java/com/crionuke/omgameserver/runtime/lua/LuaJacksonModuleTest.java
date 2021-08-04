@@ -8,22 +8,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.luaj.vm2.LuaValue;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class LuaJacksonModuleTest extends Assertions {
 
     @Test
     void testSerializer() throws JsonProcessingException {
         LuaPlatform luaPlatform = new LuaPlatform();
-        String script = """
-                return {
-                    logical = {
-                        boolean1 = true,
-                        boolean2 = false
-                    },
-                    numbers = {1024, 3.1415, {-128, -3.14}},
-                    string = "value",                   
-                }
-                """;
-        LuaChunk luaChunk = luaPlatform.loadScript("table", script);
+        LuaChunk luaChunk = luaPlatform.loadFile("return_test_object.lua");
         LuaValue luaValue = luaChunk.chunk.call();
         // Serializer
         ObjectMapper objectMapper = new ObjectMapper();
@@ -44,20 +40,12 @@ public class LuaJacksonModuleTest extends Assertions {
     }
 
     @Test
-    void testDeserializer() throws JsonProcessingException {
+    void testDeserializer() throws JsonProcessingException, URISyntaxException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         LuaJacksonModule luaJacksonModule = new LuaJacksonModule();
         luaJacksonModule.customize(objectMapper);
-        String jsonString = """
-                {
-                    "logical": {
-                        "boolean1": true,
-                        "boolean2": false
-                    },
-                    "numbers": [1024, 3.1415, [-128, -3.14]],
-                    "string": "value"
-                }
-                """;
+        URL resource = this.getClass().getResource("/test_deserialization.json");
+        String jsonString = Files.readString(Paths.get(resource.toURI()).toFile().toPath());
         LuaValue luaValue = objectMapper.readValue(jsonString, LuaValue.class);
         assertEquals(true, luaValue.get("logical").get("boolean1").toboolean());
         assertEquals(false, luaValue.get("logical").get("boolean2").toboolean());

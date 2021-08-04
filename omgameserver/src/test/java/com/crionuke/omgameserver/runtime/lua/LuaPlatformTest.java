@@ -16,28 +16,20 @@ public class LuaPlatformTest extends Assertions {
 
     @Test
     void testLoadScript() {
-        String script = "return 1";
-        LuaChunk luaChunk = luaPlatform.loadScript("return1", script);
+        LuaChunk luaChunk = luaPlatform.loadFile("return_1.lua");
         assertEquals(1, luaChunk.getChunk().call().checknumber().tolong());
     }
 
     @Test
     void testLoadFile() {
-        String filePath = "return1.lua";
+        String filePath = "return_1.lua";
         LuaChunk luaChunk = luaPlatform.loadFile(filePath);
         assertEquals(1, luaChunk.getChunk().call().checknumber().tolong());
     }
 
     @Test
     void testInterruptScript() throws InterruptedException {
-        // Lua infinity script
-        String script = """
-                local i = 0;
-                while true do
-                    i = i + 1
-                end
-                """;
-        LuaChunk luaChunk = luaPlatform.loadScript("testInterruptScript", script);
+        LuaChunk luaChunk = luaPlatform.loadFile("infinity_loop.lua");
         Thread t = new Thread(() -> {
             try {
                 luaChunk.getChunk().call();

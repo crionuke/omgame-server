@@ -42,7 +42,7 @@ public abstract class Handler {
     }
 
     class ServiceThreadFactory implements ThreadFactory {
-        static private final AtomicLong threadCounter = new AtomicLong();
+        private final AtomicLong threadCounter = new AtomicLong();
 
         @Override
         public Thread newThread(Runnable r) {
