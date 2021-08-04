@@ -68,7 +68,6 @@ import org.luaj.vm2.lib.TableLib;
  * <li>{@link JseMathLib}</li>
  * <li>{@link JseIoLib}</li>
  * <li>{@link JseOsLib}</li>
- * <li>{@link LuajavaLib}</li>
  * </ul>
  * In addition, the {@link LuaC} compiler is installed so lua files may be loaded in their source form.
  * <p>
@@ -99,7 +98,6 @@ public class JsePlatform {
 		globals.load(new JseMathLib());
 		globals.load(new JseIoLib());
 		globals.load(new JseOsLib());
-		globals.load(new LuajavaLib());
 		LoadState.install(globals);
 		LuaC.install(globals);
 		return globals;

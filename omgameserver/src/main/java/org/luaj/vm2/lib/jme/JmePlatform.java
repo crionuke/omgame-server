@@ -42,7 +42,6 @@ import org.luaj.vm2.lib.TableLib;
  * <li>Some math functions are not implemented, see {@link MathLib} for details</li>
  * <li>Scripts are loaded via Class.getResourceAsStream(), see {@link BaseLib} for details</li>
  * <li>OS functions execute(), remove(), rename(), and tmpname() vary, see {@link OsLib} for details</li>
- * <li>luajava is not available, see {@link org.luaj.vm2.lib.jse.LuajavaLib} for details</li>
  * </ul>
  * <p>
  * It is used to allocate either a set of standard globals using 
