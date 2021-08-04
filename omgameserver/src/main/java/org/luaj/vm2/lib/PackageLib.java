@@ -113,9 +113,6 @@ public class PackageLib extends TwoArgFunction {
 	
 	/** Loader that loads as a lua script using the lua path currently in {@link path} */
 	public lua_searcher lua_searcher;
-	
-	/** Loader that loads as a Java class.  Class must have public constructor and be a LuaValue. */
-	public java_searcher java_searcher;
 
 	private static final LuaString _SENTINEL   = valueOf("\u0001");
 	
@@ -142,7 +139,6 @@ public class PackageLib extends TwoArgFunction {
 		LuaTable searchers = new LuaTable();
 		searchers.set(1, preload_searcher = new preload_searcher());
 		searchers.set(2, lua_searcher     = new lua_searcher());
-		searchers.set(3, java_searcher    = new java_searcher());
 		package_.set(_SEARCHERS, searchers);
 		package_.set("config", FILE_SEP + "\n;\n?\n!\n-\n");
 		package_.get(_LOADED).set("package", package_);
@@ -321,26 +317,6 @@ public class PackageLib extends TwoArgFunction {
 				sb.append( "\n\t"+filename );
 			}
 			return varargsOf(NIL, valueOf(sb.toString()));
-		}
-	}
-	
-	public class java_searcher extends VarArgFunction {
-		public Varargs invoke(Varargs args) {
-			String name = args.checkjstring(1);
-			String classname = toClassname( name );
-			Class c = null;
-			LuaValue v = null;
-			try {
-				c = Class.forName(classname);
-				v = (LuaValue) c.newInstance();
-				if (v.isfunction())
-					((LuaFunction)v).initupvalue1(globals);
-				return varargsOf(v, globals);
-			} catch ( ClassNotFoundException  cnfe ) {
-				return valueOf("\n\tno class '"+classname+"'" );
-			} catch ( Exception e ) {
-				return valueOf("\n\tjava load failed on '"+classname+"', "+e );
-			}
 		}
 	}
 	

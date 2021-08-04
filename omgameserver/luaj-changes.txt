@@ -1,3 +1,4 @@
+- java_searcher removed from PackageLib
 - LuajavaLib, CoerceJavaToLua and CoerceLuaToJava lib removed with JavaArray, JavaClass, JavaConstructor, JavaInstance, JavaMember, JavaMethod helpers
 + if thread interrupted then fire InterruptedException from LuaClosure
 - remove CoroutineLib - starting coroutines in scripts will result in threads that are not under the server control
