@@ -1,6 +1,7 @@
 package com.crionuke.omgameserver.runtime.json;
 
 import com.crionuke.omgameserver.core.Address;
+import com.crionuke.omgameserver.core.Config;
 import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
@@ -11,7 +12,6 @@ import com.crionuke.omgameserver.runtime.events.ServerReceivedMessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Multi;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaValue;
 
@@ -28,14 +28,11 @@ import java.io.IOException;
 public class JsonService extends Handler {
     static final Logger LOG = Logger.getLogger(JsonService.class);
 
-    static final String DEFAULT_POOL_SIZE = "2";
-
     final RuntimeDispatcher runtimeDispatcher;
     final ObjectMapper objectMapper;
 
-    JsonService(@ConfigProperty(name = "omgameserver.runtime.json.poolSize", defaultValue = DEFAULT_POOL_SIZE) int poolSize,
-                RuntimeDispatcher runtimeDispatcher, ObjectMapper objectMapper) {
-        super(poolSize, JsonService.class.getSimpleName());
+    JsonService(Config config, RuntimeDispatcher runtimeDispatcher, ObjectMapper objectMapper) {
+        super(config.runtime().json().poolSize(), JsonService.class.getSimpleName());
         this.runtimeDispatcher = runtimeDispatcher;
         this.objectMapper = objectMapper;
         LOG.infof("Created");

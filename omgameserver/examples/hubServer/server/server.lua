@@ -10,8 +10,6 @@ end
 
 function server:received(event)
     print(event.id, event.client_id, event.data)
-    local response = event.data
-    runtime.send(event.client_id, response)
 end
 
 function server:disconnected(event)
@@ -23,4 +21,4 @@ runtime.add_event_listener("connected", server)
 runtime.add_event_listener("received", server)
 runtime.add_event_listener("disconnected", server)
 
-print("EchoServer stared")
+print("HubServer stared")

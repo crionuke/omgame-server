@@ -23,7 +23,7 @@ class LuaWorker extends Handler {
     final RuntimeDispatcher runtimeDispatcher;
 
     LuaWorker(Address address, LuaChunk luaChunk, RuntimeDispatcher runtimeDispatcher) {
-        super(LuaWorker.class.getSimpleName());
+        super(address.toString());
         this.address = address;
         this.luaChunk = luaChunk;
         this.runtimeDispatcher = runtimeDispatcher;

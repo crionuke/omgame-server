@@ -1,8 +1,7 @@
 package com.crionuke.omgameserver.websocket;
 
+import com.crionuke.omgameserver.core.Config;
 import com.crionuke.omgameserver.core.Dispatcher;
-import com.crionuke.omgameserver.core.Event;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,9 +14,8 @@ import javax.enterprise.context.ApplicationScoped;
 public class WebSocketDispatcher extends Dispatcher {
     static final Logger LOG = Logger.getLogger(WebSocketDispatcher.class);
 
-    WebSocketDispatcher(
-            @ConfigProperty(name = "omgameserver.websocket.bufferSize", defaultValue = "128") int bufferSize) {
-        super(bufferSize, true);
-        LOG.infof("Created, bufferSize=%d", bufferSize);
+    WebSocketDispatcher(Config config) {
+        super(config.websocket().bufferSize(), true);
+        LOG.infof("Created");
     }
 }

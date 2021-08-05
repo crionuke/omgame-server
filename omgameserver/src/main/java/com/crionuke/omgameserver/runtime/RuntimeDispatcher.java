@@ -1,10 +1,10 @@
 package com.crionuke.omgameserver.runtime;
 
+import com.crionuke.omgameserver.core.Config;
 import com.crionuke.omgameserver.core.Dispatcher;
 import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.runtime.events.TickEvent;
 import io.smallrye.mutiny.Multi;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,21 +18,17 @@ import java.time.Duration;
 public class RuntimeDispatcher extends Dispatcher {
     static final Logger LOG = Logger.getLogger(RuntimeDispatcher.class);
 
-    static final String DEFAULT_BUFFER_SIZE = "1024";
-    static final String DEFAULT_TICK_EVERY_MILLIS = "100";
-
     final int tickEveryMillis;
 
     public RuntimeDispatcher() {
-        this(Integer.valueOf(DEFAULT_BUFFER_SIZE), Integer.valueOf(DEFAULT_TICK_EVERY_MILLIS));
+        super(128, false);
+        tickEveryMillis = 100;
     }
 
-    public RuntimeDispatcher(
-            @ConfigProperty(name = "omgameserver.runtime.bufferSize", defaultValue = DEFAULT_BUFFER_SIZE) int bufferSize,
-            @ConfigProperty(name = "omgameserver.runtime.tickEveryMillis", defaultValue = DEFAULT_TICK_EVERY_MILLIS) int tickEveryMillis) {
-        super(bufferSize, false);
-        this.tickEveryMillis = tickEveryMillis;
-        LOG.infof("Created, bufferSize=%d, tickEveryMillis=%d", bufferSize, tickEveryMillis);
+    public RuntimeDispatcher(Config config) {
+        super(config.runtime().bufferSize(), false);
+        this.tickEveryMillis = config.runtime().tickEveryMillis();
+        LOG.infof("Created");
     }
 
     @Override

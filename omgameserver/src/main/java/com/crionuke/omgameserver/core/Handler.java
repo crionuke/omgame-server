@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @version 1.0.0
  */
 public abstract class Handler {
+    static private final AtomicLong threadCounter = new AtomicLong();
 
     final String handlerName;
     final Executor selfExecutor;
@@ -42,7 +43,6 @@ public abstract class Handler {
     }
 
     class ServiceThreadFactory implements ThreadFactory {
-        private final AtomicLong threadCounter = new AtomicLong();
 
         @Override
         public Thread newThread(Runnable r) {

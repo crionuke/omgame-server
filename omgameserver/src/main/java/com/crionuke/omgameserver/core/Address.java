@@ -8,6 +8,10 @@ import java.util.Objects;
  */
 public final class Address {
 
+    public static Address valueOf(Config.RuntimeBootstrapAddressConfig config) {
+        return new Address(config.tenant(), config.game(), config.worker());
+    }
+
     final String tenant;
     final String game;
     final String worker;
