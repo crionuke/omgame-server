@@ -6,11 +6,11 @@ import com.crionuke.omgameserver.core.Address;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class ClientCreatedEvent extends AddressedEvent {
+public class ClientConnectedEvent extends AddressedEvent {
 
     final long clientId;
 
-    public ClientCreatedEvent(Address address, long clientId) {
+    public ClientConnectedEvent(Address address, long clientId) {
         super(address);
         this.clientId = clientId;
     }
