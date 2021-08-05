@@ -1,9 +1,12 @@
 package com.crionuke.omgameserver.runtime.events;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Event;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * @author Kirill Byvshev (k@byv.sh)
+ * @version 1.0.0
+ */
 public class MessageDecodedEvent extends AddressedEvent {
 
     final long clientId;
