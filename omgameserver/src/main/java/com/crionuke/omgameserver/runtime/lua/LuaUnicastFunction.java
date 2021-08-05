@@ -11,12 +11,12 @@ import org.luaj.vm2.lib.TwoArgFunction;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-class LuaSendFunction extends TwoArgFunction {
-    static final Logger LOG = Logger.getLogger(LuaSendFunction.class);
+class LuaUnicastFunction extends TwoArgFunction {
+    static final Logger LOG = Logger.getLogger(LuaUnicastFunction.class);
 
     final RuntimeDispatcher runtimeDispatcher;
 
-    LuaSendFunction(RuntimeDispatcher runtimeDispatcher) {
+    LuaUnicastFunction(RuntimeDispatcher runtimeDispatcher) {
         super();
         this.runtimeDispatcher = runtimeDispatcher;
     }

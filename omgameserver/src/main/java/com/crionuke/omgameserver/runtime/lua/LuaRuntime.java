@@ -10,10 +10,10 @@ import org.jboss.logging.Logger;
 class LuaRuntime extends LuaEventListener {
     static final Logger LOG = Logger.getLogger(LuaRuntime.class);
 
-    final String FUNCTION_SEND = "send";
+    final String FUNCTION_UNICAST = "unicast";
 
     LuaRuntime(RuntimeDispatcher runtimeDispatcher) {
         super();
-        set(FUNCTION_SEND, new LuaSendFunction(runtimeDispatcher));
+        set(FUNCTION_UNICAST, new LuaUnicastFunction(runtimeDispatcher));
     }
 }

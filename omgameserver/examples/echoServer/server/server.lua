@@ -11,7 +11,7 @@ end
 function server:received(event)
     print(event.id, event.client_id, event.data)
     local response = event.data
-    runtime.send(event.client_id, response)
+    runtime.unicast(event.client_id, response)
 end
 
 function server:disconnected(event)
