@@ -6,11 +6,11 @@ import com.crionuke.omgameserver.core.Address;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class ClientRemovedEvent extends AddressedEvent {
+public class ClientDisconnectedEvent extends AddressedEvent {
 
     final long clientId;
 
-    public ClientRemovedEvent(Address address, long clientId) {
+    public ClientDisconnectedEvent(Address address, long clientId) {
         super(address);
         this.clientId = clientId;
     }

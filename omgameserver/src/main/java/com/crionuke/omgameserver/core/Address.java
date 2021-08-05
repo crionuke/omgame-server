@@ -52,16 +52,8 @@ public final class Address {
         return Objects.hash(tenant, game, worker);
     }
 
-    public String asPath() {
-        return tenant + "/" + game + "/" + worker;
-    }
-
     @Override
     public String toString() {
-        return "Address{" +
-                "tenant='" + tenant + '\'' +
-                ", game='" + game + '\'' +
-                ", worker='" + worker + '\'' +
-                '}';
+        return tenant + "/" + game + "/" + worker;
     }
 }

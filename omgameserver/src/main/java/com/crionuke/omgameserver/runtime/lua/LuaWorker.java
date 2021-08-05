@@ -45,15 +45,15 @@ class LuaWorker extends Handler {
         addressedEvents.filter(event -> event instanceof StartWorkerEvent)
                 .onItem().castTo(StartWorkerEvent.class)
                 .subscribe().with(event -> handleStartWorkerEvent(event));
-        addressedEvents.filter(event -> event instanceof ClientCreatedEvent)
-                .onItem().castTo(ClientCreatedEvent.class)
-                .subscribe().with(event -> handleClientCreatedEvent(event));
+        addressedEvents.filter(event -> event instanceof ClientConnectedEvent)
+                .onItem().castTo(ClientConnectedEvent.class)
+                .subscribe().with(event -> handleClientConnectedEvent(event));
         addressedEvents.filter(event -> event instanceof MessageDecodedEvent)
                 .onItem().castTo(MessageDecodedEvent.class)
                 .subscribe().with(event -> handleMessageDecodedEvent(event));
-        addressedEvents.filter(event -> event instanceof ClientRemovedEvent)
-                .onItem().castTo(ClientRemovedEvent.class)
-                .subscribe().with(event -> handleClientRemovedEvent(event));
+        addressedEvents.filter(event -> event instanceof ClientDisconnectedEvent)
+                .onItem().castTo(ClientDisconnectedEvent.class)
+                .subscribe().with(event -> handleClientDisconnectedEvent(event));
     }
 
     void handleTickEvent(TickEvent event) {
@@ -65,15 +65,17 @@ class LuaWorker extends Handler {
     void handleStartWorkerEvent(StartWorkerEvent event) {
         try {
             luaChunk.getChunk().call();
+            LOG.infof("Worker started, address=%s", event.getAddress());
         } catch (LuaError luaError) {
-            LOG.warnf("Worker failed, address=%s, reason=%s", address.asPath(), luaError.getMessage());
+            LOG.warnf("Worker failed, address=%s, reason=%s", address, luaError.getMessage());
         }
     }
 
-    void handleClientCreatedEvent(ClientCreatedEvent event) {
+    void handleClientConnectedEvent(ClientConnectedEvent event) {
         long clientId = event.getClientId();
         LuaConnectedEvent luaEvent = new LuaConnectedEvent(clientId);
         dispatch(luaEvent);
+        LOG.debugf("Client connected, clientId=%d", clientId);
     }
 
     void handleMessageDecodedEvent(MessageDecodedEvent event) {
@@ -81,19 +83,23 @@ class LuaWorker extends Handler {
         LuaValue luaValue = event.getLuaValue();
         LuaReceivedEvent luaEvent = new LuaReceivedEvent(clientId, luaValue);
         dispatch(luaEvent);
+        if (LOG.isTraceEnabled()) {
+            LOG.tracef("Message received, clientId=%d, luaValue=%s", clientId, luaValue);
+        }
     }
 
-    void handleClientRemovedEvent(ClientRemovedEvent event) {
+    void handleClientDisconnectedEvent(ClientDisconnectedEvent event) {
         long clientId = event.getClientId();
         LuaDisconnectedEvent luaEvent = new LuaDisconnectedEvent(clientId);
         dispatch(luaEvent);
+        LOG.debugf("Client disconnected, clientId=%d", clientId);
     }
 
     void dispatch(LuaEvent luaEvent) {
         try {
             luaChunk.getRuntime().dispatch(luaEvent.getId(), luaEvent);
         } catch (LuaError luaError) {
-            LOG.warnf("Worker failed, address=%s, reason=%s", address.asPath(), luaError.getMessage());
+            LOG.warnf("Worker failed, address=%s, reason=%s", address, luaError.getMessage());
         }
     }
 }

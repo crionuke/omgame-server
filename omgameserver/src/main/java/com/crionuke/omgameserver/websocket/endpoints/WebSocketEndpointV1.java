@@ -32,25 +32,36 @@ class WebSocketEndpointV1 {
     @OnOpen
     public void onOpen(Session session, @PathParam("tenant") String tenant,
                        @PathParam("game") String game, @PathParam("worker") String worker) {
-        websocketDispatcher.fire(new WebSocketSessionOpenedEvent(session, new Address(tenant, game, worker)));
+        Address address = new Address(tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketSessionOpenedEvent(session, address));
+        LOG.infof("WebSocket session opened, sessionId=%s, address=%s", session.getId(), address);
     }
 
     @OnClose
     public void onClose(Session session, @PathParam("tenant") String tenant,
                         @PathParam("game") String game, @PathParam("worker") String worker) {
-        websocketDispatcher.fire(new WebSocketSessionClosedEvent(session, new Address(tenant, game, worker)));
+        Address address = new Address(tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketSessionClosedEvent(session, address));
+        LOG.infof("WebSocket session closed, sessionId=%s, address=%s", session.getId(), address);
     }
 
     @OnError
     public void onError(Session session, Throwable throwable, @PathParam("tenant") String tenant,
                         @PathParam("game") String game, @PathParam("worker") String worker) {
-        websocketDispatcher.fire(new WebSocketSessionFailedEvent(session, new Address(tenant, game, worker)));
+        Address address = new Address(tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketSessionFailedEvent(session, address));
+        LOG.infof("WebSocket session failed, sessionId=%s, address=%s, error=%s",
+                session.getId(), address, throwable.getMessage());
     }
 
     @OnMessage
     public void onMessage(String message, Session session, @PathParam("tenant") String tenant,
                           @PathParam("game") String game, @PathParam("worker") String worker) {
-        websocketDispatcher.fire(new WebSocketMessageReceivedEvent(session, message,
-                new Address(tenant, game, worker)));
+        Address address = new Address(tenant, game, worker);
+        websocketDispatcher.fire(new WebSocketMessageReceivedEvent(session, message, address));
+        if (LOG.isTraceEnabled()) {
+            LOG.tracef("Got webSocket message, sessionId=%s, address=%s, message=%s",
+                    session.getId(), address, message);
+        }
     }
 }

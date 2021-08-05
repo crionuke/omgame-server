@@ -47,11 +47,11 @@ public class JsonService extends Handler {
                 .emitOn(getSelfExecutor());
 
         events.filter(event -> event instanceof ServerReceivedMessageEvent)
-                .onItem().castTo(ServerReceivedMessageEvent.class).log().subscribe()
+                .onItem().castTo(ServerReceivedMessageEvent.class).subscribe()
                 .with(event -> handleServerReceivedMessageEvent(event));
 
         events.filter(event -> event instanceof SendLuaValueEvent)
-                .onItem().castTo(SendLuaValueEvent.class).log().subscribe()
+                .onItem().castTo(SendLuaValueEvent.class).subscribe()
                 .with(event -> handleSendLuaValueEvent(event));
     }
 
@@ -62,6 +62,10 @@ public class JsonService extends Handler {
         try {
             LuaValue luaValue = objectMapper.readValue(message, LuaValue.class);
             runtimeDispatcher.fire(new MessageDecodedEvent(address, clientId, luaValue));
+            if (LOG.isTraceEnabled()) {
+                LOG.tracef("LuaValue decoded from json, address=%s, clientId=%d, message=%s",
+                        address, clientId, message);
+            }
         } catch (IOException e) {
             LOG.debugf("Decode json failed, clientId=%d", clientId);
         }
@@ -73,6 +77,9 @@ public class JsonService extends Handler {
         try {
             String message = objectMapper.writeValueAsString(luaValue);
             runtimeDispatcher.fire(new MessageEncodedEvent(clientId, message));
+            if (LOG.isTraceEnabled()) {
+                LOG.tracef("LuaValue encoded to json, clientId=%d, luaValue=%s", clientId, luaValue);
+            }
         } catch (IOException e) {
             LOG.debugf("Encode LuaValue failed, clientId=%d, %e", clientId, e);
         }

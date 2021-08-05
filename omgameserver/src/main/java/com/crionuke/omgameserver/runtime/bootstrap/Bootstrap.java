@@ -26,12 +26,13 @@ public class Bootstrap {
               @ConfigProperty(name = "omgameserver.runtime.bootstrap.address.worker") String worker) {
         this.script = script;
         address = new Address(tenant, game, worker);
-        LOG.infof("Created, script='%s', address='%s'", script, address);
+        LOG.infof("Created, script=%s, address=%s", script, address);
     }
 
     public Multi<Event> getMulti() {
         return Multi.createFrom().emitter(emitter -> {
             emitter.emit(new CreateWorkerEvent(script, address));
+            LOG.infof("Worker bootstrapped, script=%s, address=%s", script, address);
             emitter.complete();
         });
     }

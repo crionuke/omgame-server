@@ -46,7 +46,7 @@ public class LuaService extends Handler {
                 .streams(bootstrap.getMulti(), runtimeDispatcher.getMulti())
                 .emitOn(getSelfExecutor());
         events.filter(event -> event instanceof CreateWorkerEvent)
-                .onItem().castTo(CreateWorkerEvent.class).log().subscribe().with(event -> handleCreateWorkerEvent(event));
+                .onItem().castTo(CreateWorkerEvent.class).subscribe().with(event -> handleCreateWorkerEvent(event));
     }
 
     void handleCreateWorkerEvent(CreateWorkerEvent event) {
@@ -60,6 +60,7 @@ public class LuaService extends Handler {
             luaWorker.postConstruct();
             routes.put(address, luaWorker);
             runtimeDispatcher.fire(new StartWorkerEvent(address));
+            LOG.infof("Worker created, script=%s, address=%s", script, address);
         }
     }
 }
