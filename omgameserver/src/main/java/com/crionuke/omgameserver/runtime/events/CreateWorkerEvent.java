@@ -9,21 +9,28 @@ import com.crionuke.omgameserver.core.Address;
 public class CreateWorkerEvent extends AddressedEvent {
 
     final String script;
+    final int tickEveryMillis;
 
-    public CreateWorkerEvent(String script, Address address) {
+    public CreateWorkerEvent(String script, Address address, int tickEveryMillis) {
         super(address);
         this.script = script;
+        this.tickEveryMillis = tickEveryMillis;
     }
 
     public String getScript() {
         return script;
     }
 
+    public int getTickEveryMillis() {
+        return tickEveryMillis;
+    }
+
     @Override
     public String toString() {
         return "CreateWorkerEvent{" +
-                "script='" + script + '\'' +
-                ", address=" + address +
+                "address=" + address +
+                ", script='" + script + '\'' +
+                ", tickEveryMillis=" + tickEveryMillis +
                 '}';
     }
 }

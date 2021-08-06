@@ -10,16 +10,17 @@ omgameserver:
     bufferSize: 128
   runtime:
     bufferSize: 1024
-    tickEveryMillis: 1000
     json:
     bootstrap:
       - script: "examples/echoServer/server/server.lua"
+        tickEveryMillis: 1000
         address:
           tenant: "crionuke"
           game: "echoserver"
           worker: "main"
       - script: "examples/hubServer/server/server.lua"
+        tickEveryMillis: 5000
         address:
           tenant: "crionuke"
-          game: "hubServer"
+          game: "hubserver"
           worker: "main"

@@ -28,10 +28,6 @@ public interface Config {
         @WithDefault("1024")
         int bufferSize();
 
-        @WithName("tickEveryMillis")
-        @WithDefault("100")
-        int tickEveryMillis();
-
         RuntimeJsonConfig json();
 
         List<RuntimeBootstrap> bootstrap();
@@ -45,6 +41,10 @@ public interface Config {
 
     interface RuntimeBootstrap {
         String script();
+
+        @WithName("tickEveryMillis")
+        @WithDefault("1000")
+        int tickEveryMillis();
 
         RuntimeBootstrapAddressConfig address();
     }

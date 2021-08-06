@@ -1,7 +1,7 @@
 local server = {}
 
 function server:tick(event)
-    --print(event.id, event.tick)
+    print(event.id, event.tick, event.time)
 end
 
 function server:connected(event)

@@ -29,7 +29,8 @@ public class Bootstrap {
             for (Config.RuntimeBootstrap bootstrap : config.runtime().bootstrap()) {
                 String script = bootstrap.script();
                 Address address = Address.valueOf(bootstrap.address());
-                emitter.emit(new CreateWorkerEvent(script, address));
+                int tickEveryMillis = bootstrap.tickEveryMillis();
+                emitter.emit(new CreateWorkerEvent(script, address, tickEveryMillis));
                 LOG.infof("Worker bootstrapped, script=%s, address=%s", script, address);
             }
             emitter.complete();

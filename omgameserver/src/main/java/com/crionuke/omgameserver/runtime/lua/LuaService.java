@@ -51,12 +51,13 @@ public class LuaService extends Handler {
 
     void handleCreateWorkerEvent(CreateWorkerEvent event) {
         String script = event.getScript();
+        int tickEveryMillis = event.getTickEveryMillis();
         Address address = event.getAddress();
         if (routes.containsKey(address)) {
             LOG.warnf("Address already taken, address='%s', script='%s'", address, script);
         } else {
             LuaChunk luaChunk = luaPlatform.loadFile(script);
-            LuaWorker luaWorker = new LuaWorker(address, luaChunk, runtimeDispatcher);
+            LuaWorker luaWorker = new LuaWorker(address, luaChunk, runtimeDispatcher, tickEveryMillis);
             luaWorker.postConstruct();
             routes.put(address, luaWorker);
             runtimeDispatcher.fire(new StartWorkerEvent(address));

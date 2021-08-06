@@ -9,19 +9,26 @@ import com.crionuke.omgameserver.core.Event;
 public class TickEvent extends Event {
 
     long tick;
+    long time;
 
-    public TickEvent(long tick) {
+    public TickEvent(long tick, long time) {
         this.tick = tick;
+        this.time = time;
     }
 
     public long getTick() {
         return tick;
     }
 
+    public long getTime() {
+        return time;
+    }
+
     @Override
     public String toString() {
         return "TickEvent{" +
                 "tick=" + tick +
+                ", time=" + time +
                 '}';
     }
 }

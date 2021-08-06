@@ -11,6 +11,8 @@ import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 
+import java.time.Duration;
+
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
@@ -21,17 +23,21 @@ class LuaWorker extends Handler {
     final Address address;
     final LuaChunk luaChunk;
     final RuntimeDispatcher runtimeDispatcher;
+    final int tickEveryMillis;
 
-    LuaWorker(Address address, LuaChunk luaChunk, RuntimeDispatcher runtimeDispatcher) {
+    LuaWorker(Address address, LuaChunk luaChunk, RuntimeDispatcher runtimeDispatcher, int tickEveryMillis) {
         super(address.toString());
         this.address = address;
         this.luaChunk = luaChunk;
         this.runtimeDispatcher = runtimeDispatcher;
-        LOG.infof("Created, address=%s", address);
+        this.tickEveryMillis = tickEveryMillis;
+        LOG.infof("Created, address=%s, tickEveryMillis=%d", address, tickEveryMillis);
     }
 
     void postConstruct() {
-        Multi<Event> allEvents = runtimeDispatcher.getMulti()
+        Multi<Event> allEvents = Multi.createBy().merging()
+                // Mix with ticks
+                .streams(getTicks(), runtimeDispatcher.getMulti())
                 .emitOn(getSelfExecutor());
 
         allEvents.filter(event -> event instanceof TickEvent)
@@ -56,9 +62,15 @@ class LuaWorker extends Handler {
                 .subscribe().with(event -> handleClientDisconnectedEvent(event));
     }
 
+    Multi<Event> getTicks() {
+        return Multi.createFrom().ticks().every(Duration.ofMillis(tickEveryMillis))
+                .onItem().transform(tick -> new TickEvent(tick, System.currentTimeMillis()));
+    }
+
     void handleTickEvent(TickEvent event) {
         long tick = event.getTick();
-        LuaTickEvent luaTickEvent = new LuaTickEvent(tick);
+        long time = event.getTime();
+        LuaTickEvent luaTickEvent = new LuaTickEvent(tick, time);
         dispatch(luaTickEvent);
     }
 
