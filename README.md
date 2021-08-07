@@ -7,4 +7,4 @@ Current list of changes available here [luaj-changes.txt](https://github.com/cri
 
 **List of examples**
 - [EchoServer](https://github.com/crionuke/omgameserver/tree/main/omgameserver/examples/echoServer) - where any received data is just sent back
-- [HubServer](https://github.com/crionuke/omgameserver/tree/main/omgameserver/examples/hubServer) - server collects data from clients during period and sends back batch with all information by timer 
+- [HubServer](https://github.com/crionuke/omgameserver/tree/main/omgameserver/examples/hubServer) - collects data from clients during period and sends back batch with all information by timer 
