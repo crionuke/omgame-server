@@ -79,7 +79,7 @@ class LuaWorker extends Handler {
             luaChunk.getChunk().call();
             LOG.infof("Worker started, address=%s", event.getAddress());
         } catch (LuaError luaError) {
-            LOG.warnf("Worker failed, address=%s, reason=%s", address, luaError.getMessage());
+            LOG.warnf("Start worker failed, address=%s, reason=%s", address, luaError.getMessage());
         }
     }
 
@@ -108,10 +108,13 @@ class LuaWorker extends Handler {
     }
 
     void dispatch(LuaEvent luaEvent) {
+        String eventId = luaEvent.getId();
         try {
-            luaChunk.getRuntime().dispatch(luaEvent.getId(), luaEvent);
+            luaChunk.getRuntime().dispatch(eventId, luaEvent);
         } catch (LuaError luaError) {
-            LOG.warnf("Worker failed, address=%s, reason=%s", address, luaError.getMessage());
+            LOG.warnf("Dispatch lua event failed, eventId=%s, address=%s, reason=%s",
+                    eventId, address, luaError.getMessage(), luaError);
+            luaError.printStackTrace();
         }
     }
 }
