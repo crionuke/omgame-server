@@ -22,26 +22,16 @@ class LuaPlatform {
     static final Logger LOG = Logger.getLogger(LuaPlatform.class);
 
     final RuntimeDispatcher runtimeDispatcher;
-    final Globals serverGlobal;
 
     LuaPlatform(RuntimeDispatcher runtimeDispatcher) {
         this.runtimeDispatcher = runtimeDispatcher;
-        // Create server globals with just enough library support to compile user scripts.
-        serverGlobal = new Globals();
-        serverGlobal.load(new JseBaseLib());
-        serverGlobal.load(new JseMathLib());
-        serverGlobal.load(new JseStringLib());
-        LoadState.install(serverGlobal);
-        LuaC.install(serverGlobal);
-        // Set up the LuaString metatable to be read-only since it is shared across all scripts.
-        LuaString.s_metatable = new ReadOnlyLuaTable(LuaString.s_metatable);
     }
 
     public LuaChunk loadScript(String chunkName, String script) {
         LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
         Globals userGlobals = createUserGlobals(runtime);
         LOG.infof("Load script, chunkName=%s, script=%s", chunkName, script);
-        LuaValue chunk = serverGlobal.load(script, chunkName, userGlobals);
+        LuaValue chunk = userGlobals.load(script, chunkName, userGlobals);
         return new LuaChunk(userGlobals, runtime, chunk);
     }
 
@@ -49,7 +39,7 @@ class LuaPlatform {
         LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
         Globals userGlobals = createUserGlobals(runtime);
         LOG.infof("Load file, filePath=%s", filePath);
-        LuaValue chunk = serverGlobal.load(serverGlobal.finder.findResource(filePath),
+        LuaValue chunk = userGlobals.load(userGlobals.finder.findResource(filePath),
                 "@" + filePath, "bt", userGlobals);
         return new LuaChunk(userGlobals, runtime, chunk);
     }
@@ -68,6 +58,8 @@ class LuaPlatform {
         // Override print function to output through logger
         globals.set("print", new LuaPrintFunction(globals));
         globals.set("runtime", luaRuntime);
+        // Set up the LuaString metatable to be read-only since it is shared across all scripts.
+        LuaString.s_metatable = new ReadOnlyLuaTable(LuaString.s_metatable);
         return globals;
     }
 
