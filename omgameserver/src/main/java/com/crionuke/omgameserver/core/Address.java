@@ -8,7 +8,7 @@ import java.util.Objects;
  */
 public final class Address {
 
-    public static Address valueOf(Config.RuntimeBootstrapAddressConfig config) {
+    public static Address valueOf(Config.RuntimeBootstrapServiceInitialWorkerAddressConfig config) {
         return new Address(config.tenant(), config.game(), config.worker());
     }
 

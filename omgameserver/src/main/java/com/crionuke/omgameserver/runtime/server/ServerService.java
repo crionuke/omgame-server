@@ -86,7 +86,7 @@ public class ServerService extends Handler {
                 LOG.tracef("Message received, clientId=%s, message=%s", client.getId(), message);
             }
         } else {
-            LOG.infof("Client not found, sessionId=%s", session.getId());
+            LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
     }
 
@@ -100,7 +100,7 @@ public class ServerService extends Handler {
             LOG.infof("Client disconnected as session failed, clientId=%d, address=%s",
                     client.getId(), address);
         } else {
-            LOG.infof("Client not found, sessionId=%s", session.getId());
+            LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
     }
 
@@ -114,7 +114,7 @@ public class ServerService extends Handler {
             LOG.infof("Client disconnected as session closed, clientId=%d, address=%s",
                     client.getId(), address);
         } else {
-            LOG.infof("Client not found, sessionId=%s", session.getId());
+            LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
     }
 
@@ -129,7 +129,7 @@ public class ServerService extends Handler {
                 LOG.tracef("Message sent, clientId=%s, message=%s", clientId, message);
             }
         } else {
-            LOG.infof("Client not found, clientId=%d", clientId);
+            LOG.warnf("Client not found, clientId=%d", clientId);
         }
     }
 }

@@ -29,14 +29,16 @@ class LuaResourceFinder implements ResourceFinder {
         if (file.exists()) {
             try {
                 InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-                LOG.infof("Resource found, fileName=%s", fileName);
+                LOG.infof("Resource found, rootDirectory=%s, fileName=%s", rootDirectory, fileName);
                 return inputStream;
             } catch (IOException e) {
-                LOG.warnf("Failed to open resource, fileName=%s. %s", fileName, e.getMessage());
+                LOG.warnf("Failed to open resource, rootDirectory=%s, fileName=%s. %s",
+                        rootDirectory, fileName, e.getMessage());
                 return null;
             }
         } else {
-            LOG.warnf("Resource not exists, get resource, fileName=%s", fileName);
+            LOG.warnf("Resource not exists, get resource, rootDirectory=%s, fileName=%s",
+                    fileName, rootDirectory);
             return getClass().getResourceAsStream(fileName.startsWith("/") ? fileName : "/" + fileName);
         }
     }

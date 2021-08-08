@@ -4,26 +4,28 @@ quarkus:
   log:
     category:
       "com.crionuke.omgameserver":
-        level: DEBUG
+        level: INFO
+        min-level: TRACE
 omgameserver:
   websocket:
     bufferSize: 128
   runtime:
     bufferSize: 1024
-    json:
+    jsonService:
       poolSize: 2
-    bootstrap:
-      - rootDirectory: "examples/echoServer"
-        mainScript: "server/main.lua"
-        tickEveryMillis: 1000
-        address:
-          tenant: "crionuke"
-          game: "echoserver"
-          worker: "main"
-      - rootDirectory: "examples/hubServer"
-        mainScript: "server/main.lua"
-        tickEveryMillis: 1000
-        address:
-          tenant: "crionuke"
-          game: "hubserver"
-          worker: "main"
+    bootstrapService:
+      initialWorkers:
+        - rootDirectory: "examples/echoServer"
+          mainScript: "server/main.lua"
+          tickEveryMillis: 1000
+          address:
+            tenant: "crionuke"
+            game: "echoserver"
+            worker: "main"
+        - rootDirectory: "examples/hubServer"
+          mainScript: "server/main.lua"
+          tickEveryMillis: 1000
+          address:
+            tenant: "crionuke"
+            game: "hubserver"
+            worker: "main"

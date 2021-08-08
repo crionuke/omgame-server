@@ -24,22 +24,30 @@ public interface Config {
     }
 
     interface RuntimeConfig {
+
         @WithName("bufferSize")
         @WithDefault("1024")
         int bufferSize();
 
-        RuntimeJsonConfig json();
+        @WithName("jsonService")
+        RuntimeJsonServiceConfig jsonService();
 
-        List<RuntimeBootstrap> bootstrap();
+        @WithName("bootstrapService")
+        RuntimeBootstrapService bootstrapService();
     }
 
-    interface RuntimeJsonConfig {
+    interface RuntimeJsonServiceConfig {
         @WithName("poolSize")
         @WithDefault("2")
         int poolSize();
     }
 
-    interface RuntimeBootstrap {
+    interface RuntimeBootstrapService {
+        @WithName("initialWorkers")
+        List<RuntimeBootstrapServiceInitialWorkerConfig> initialWorkers();
+    }
+
+    interface RuntimeBootstrapServiceInitialWorkerConfig {
         @WithName("rootDirectory")
         @WithDefault(".")
         String rootDirectory();
@@ -52,10 +60,10 @@ public interface Config {
         @WithDefault("1000")
         int tickEveryMillis();
 
-        RuntimeBootstrapAddressConfig address();
+        RuntimeBootstrapServiceInitialWorkerAddressConfig address();
     }
 
-    interface RuntimeBootstrapAddressConfig {
+    interface RuntimeBootstrapServiceInitialWorkerAddressConfig {
         String tenant();
 
         String game();

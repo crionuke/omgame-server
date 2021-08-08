@@ -32,7 +32,7 @@ public class JsonService extends Handler {
     final ObjectMapper objectMapper;
 
     JsonService(Config config, RuntimeDispatcher runtimeDispatcher, ObjectMapper objectMapper) {
-        super(config.runtime().json().poolSize(), JsonService.class.getSimpleName());
+        super(config.runtime().jsonService().poolSize(), JsonService.class.getSimpleName());
         this.runtimeDispatcher = runtimeDispatcher;
         this.objectMapper = objectMapper;
         LOG.infof("Created");

@@ -4,7 +4,7 @@ import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
-import com.crionuke.omgameserver.runtime.bootstrap.Bootstrap;
+import com.crionuke.omgameserver.runtime.bootstrap.BootstrapService;
 import com.crionuke.omgameserver.runtime.events.CreateWorkerEvent;
 import com.crionuke.omgameserver.runtime.events.StartWorkerEvent;
 import io.quarkus.runtime.Startup;
@@ -25,14 +25,14 @@ import java.util.Map;
 public class LuaService extends Handler {
     static final Logger LOG = Logger.getLogger(LuaService.class);
 
-    final Bootstrap bootstrap;
+    final BootstrapService bootstrapService;
     final RuntimeDispatcher runtimeDispatcher;
     final LuaPlatform luaPlatform;
     final Map<Address, LuaWorker> routes;
 
-    LuaService(Bootstrap bootstrap, LuaPlatform luaPlatform, RuntimeDispatcher runtimeDispatcher) {
+    LuaService(BootstrapService bootstrapService, LuaPlatform luaPlatform, RuntimeDispatcher runtimeDispatcher) {
         super(LuaService.class.getSimpleName());
-        this.bootstrap = bootstrap;
+        this.bootstrapService = bootstrapService;
         this.luaPlatform = luaPlatform;
         this.runtimeDispatcher = runtimeDispatcher;
         routes = new HashMap<>();
@@ -43,7 +43,7 @@ public class LuaService extends Handler {
     void postConstruct() {
         Multi<Event> events = Multi.createBy().concatenating()
                 // Handle first bootstrap events, next runtime
-                .streams(bootstrap.getMulti(), runtimeDispatcher.getMulti())
+                .streams(bootstrapService.getMulti(), runtimeDispatcher.getMulti())
                 .emitOn(getSelfExecutor());
         events.filter(event -> event instanceof CreateWorkerEvent)
                 .onItem().castTo(CreateWorkerEvent.class).subscribe().with(event -> handleCreateWorkerEvent(event));

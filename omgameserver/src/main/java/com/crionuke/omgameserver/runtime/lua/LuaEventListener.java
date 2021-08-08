@@ -1,5 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
+import com.crionuke.omgameserver.runtime.lua.events.LuaTickEvent;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaString;
@@ -47,6 +48,8 @@ class LuaEventListener extends LuaTable {
                 count++;
             }
         }
-        LOG.tracef("Dispatch, id=%s, count=%d", id, count);
+        if (!id.equals(LuaTickEvent.TICK_EVENT_ID)) {
+            LOG.tracef("Dispatch, id=%s, count=%d", id, count);
+        }
     }
 }
