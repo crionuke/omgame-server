@@ -1,4 +1,4 @@
-local Player = require("examples.hubServer.server.scripts.Player")
+local Player = require("server.scripts.Player")
 
 local Server = {}
 Server.__index = Server

@@ -13,13 +13,15 @@ omgameserver:
     json:
       poolSize: 2
     bootstrap:
-      - script: "examples/echoServer/server/main.lua"
+      - rootDirectory: "examples/echoServer"
+        mainScript: "server/main.lua"
         tickEveryMillis: 1000
         address:
           tenant: "crionuke"
           game: "echoserver"
           worker: "main"
-      - script: "examples/hubServer/server/main.lua"
+      - rootDirectory: "examples/hubServer"
+        mainScript: "server/main.lua"
         tickEveryMillis: 1000
         address:
           tenant: "crionuke"

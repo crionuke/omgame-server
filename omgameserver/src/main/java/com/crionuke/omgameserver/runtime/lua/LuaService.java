@@ -50,18 +50,20 @@ public class LuaService extends Handler {
     }
 
     void handleCreateWorkerEvent(CreateWorkerEvent event) {
-        String script = event.getScript();
+        String rootDirectory = event.getRootDirectory();
+        String mainScript = event.getMainScript();
         int tickEveryMillis = event.getTickEveryMillis();
         Address address = event.getAddress();
         if (routes.containsKey(address)) {
-            LOG.warnf("Address already taken, address='%s', script='%s'", address, script);
+            LOG.warnf("Address already taken, address=%s, rootDirectory=%s, mainScript=%s",
+                    address, rootDirectory, mainScript);
         } else {
-            LuaChunk luaChunk = luaPlatform.loadFile(script);
+            LuaChunk luaChunk = luaPlatform.loadChunk(rootDirectory, mainScript);
             LuaWorker luaWorker = new LuaWorker(address, luaChunk, runtimeDispatcher, tickEveryMillis);
             luaWorker.postConstruct();
             routes.put(address, luaWorker);
             runtimeDispatcher.fire(new StartWorkerEvent(address));
-            LOG.infof("Worker created, script=%s, address=%s", script, address);
+            LOG.infof("Worker created, mainScript=%s, address=%s", mainScript, address);
         }
     }
 }

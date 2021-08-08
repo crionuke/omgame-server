@@ -40,7 +40,13 @@ public interface Config {
     }
 
     interface RuntimeBootstrap {
-        String script();
+        @WithName("rootDirectory")
+        @WithDefault(".")
+        String rootDirectory();
+
+        @WithName("mainScript")
+        @WithDefault("main.lua")
+        String mainScript();
 
         @WithName("tickEveryMillis")
         @WithDefault("1000")

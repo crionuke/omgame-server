@@ -27,18 +27,15 @@ class LuaPlatform {
         this.runtimeDispatcher = runtimeDispatcher;
     }
 
-    public LuaChunk loadScript(String chunkName, String script) {
-        LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
-        Globals userGlobals = createUserGlobals(runtime);
-        LOG.infof("Load script, chunkName=%s, script=%s", chunkName, script);
-        LuaValue chunk = userGlobals.load(script, chunkName, userGlobals);
-        return new LuaChunk(userGlobals, runtime, chunk);
+    public LuaChunk loadChunk(String filePath) {
+        return this.loadChunk(".", filePath);
     }
 
-    public LuaChunk loadFile(String filePath) {
+    public LuaChunk loadChunk(String rootDirectory, String filePath) {
         LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
         Globals userGlobals = createUserGlobals(runtime);
-        LOG.infof("Load file, filePath=%s", filePath);
+        userGlobals.finder = new LuaResourceFinder(rootDirectory);
+        LOG.infof("Load file, rootDirectory=%s, filePath=%s", rootDirectory, filePath);
         LuaValue chunk = userGlobals.load(userGlobals.finder.findResource(filePath),
                 "@" + filePath, "bt", userGlobals);
         return new LuaChunk(userGlobals, runtime, chunk);

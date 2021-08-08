@@ -8,17 +8,23 @@ import com.crionuke.omgameserver.core.Address;
  */
 public class CreateWorkerEvent extends AddressedEvent {
 
-    final String script;
+    final String rootDirectory;
+    final String mainScript;
     final int tickEveryMillis;
 
-    public CreateWorkerEvent(String script, Address address, int tickEveryMillis) {
+    public CreateWorkerEvent(String rootDirectory, String mainScript, Address address, int tickEveryMillis) {
         super(address);
-        this.script = script;
+        this.rootDirectory = rootDirectory;
+        this.mainScript = mainScript;
         this.tickEveryMillis = tickEveryMillis;
     }
 
-    public String getScript() {
-        return script;
+    public String getRootDirectory() {
+        return rootDirectory;
+    }
+
+    public String getMainScript() {
+        return mainScript;
     }
 
     public int getTickEveryMillis() {
@@ -29,7 +35,8 @@ public class CreateWorkerEvent extends AddressedEvent {
     public String toString() {
         return "CreateWorkerEvent{" +
                 "address=" + address +
-                ", script='" + script + '\'' +
+                ", rootDirectory='" + rootDirectory + '\'' +
+                ", mainScript='" + mainScript + '\'' +
                 ", tickEveryMillis=" + tickEveryMillis +
                 '}';
     }

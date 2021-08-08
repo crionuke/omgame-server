@@ -1,4 +1,4 @@
-local Server = require("examples.hubServer.server.scripts.Server")
+local Server = require("server.scripts.Server")
 
 local server = Server.create()
 

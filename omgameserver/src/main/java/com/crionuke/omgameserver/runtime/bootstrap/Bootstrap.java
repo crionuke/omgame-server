@@ -27,11 +27,13 @@ public class Bootstrap {
     public Multi<Event> getMulti() {
         return Multi.createFrom().emitter(emitter -> {
             for (Config.RuntimeBootstrap bootstrap : config.runtime().bootstrap()) {
-                String script = bootstrap.script();
+                String rootDirectory = bootstrap.rootDirectory();
+                String mainScript = bootstrap.mainScript();
                 Address address = Address.valueOf(bootstrap.address());
                 int tickEveryMillis = bootstrap.tickEveryMillis();
-                emitter.emit(new CreateWorkerEvent(script, address, tickEveryMillis));
-                LOG.infof("Worker bootstrapped, script=%s, address=%s", script, address);
+                emitter.emit(new CreateWorkerEvent(rootDirectory, mainScript, address, tickEveryMillis));
+                LOG.infof("Worker bootstrapped, rootDirectory=%s, mainScript=%s, address=%s",
+                        rootDirectory, mainScript, address);
             }
             emitter.complete();
         });
