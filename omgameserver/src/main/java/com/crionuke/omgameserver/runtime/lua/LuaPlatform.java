@@ -11,19 +11,18 @@ import org.luaj.vm2.lib.jse.JseBaseLib;
 import org.luaj.vm2.lib.jse.JseMathLib;
 import org.luaj.vm2.lib.jse.JseStringLib;
 
+import javax.enterprise.context.ApplicationScoped;
+
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
+@ApplicationScoped
 class LuaPlatform {
     static final Logger LOG = Logger.getLogger(LuaPlatform.class);
 
     final RuntimeDispatcher runtimeDispatcher;
     final Globals serverGlobal;
-
-    LuaPlatform() {
-        this(new RuntimeDispatcher());
-    }
 
     LuaPlatform(RuntimeDispatcher runtimeDispatcher) {
         this.runtimeDispatcher = runtimeDispatcher;

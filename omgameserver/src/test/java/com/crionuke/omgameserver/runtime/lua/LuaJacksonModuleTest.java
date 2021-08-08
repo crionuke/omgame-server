@@ -1,5 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
+import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.json.LuaJacksonModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,7 +19,7 @@ public class LuaJacksonModuleTest extends Assertions {
 
     @Test
     void testSerializer() throws JsonProcessingException {
-        LuaPlatform luaPlatform = new LuaPlatform();
+        LuaPlatform luaPlatform = new LuaPlatform(new RuntimeDispatcher());
         LuaChunk luaChunk = luaPlatform.loadFile("return_test_object.lua");
         LuaValue luaValue = luaChunk.chunk.call();
         // Serializer
