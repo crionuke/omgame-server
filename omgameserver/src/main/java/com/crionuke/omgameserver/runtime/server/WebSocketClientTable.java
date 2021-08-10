@@ -36,6 +36,10 @@ public class WebSocketClientTable {
         return sessionIndex.containsKey(session);
     }
 
+    Set<WebSocketClient> get() {
+        return table;
+    }
+
     WebSocketClient get(long id) {
         return idIndex.get(id);
     }

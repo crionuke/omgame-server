@@ -6,24 +6,24 @@ Server.__index = Server
 function Server.create()
     self = setmetatable({}, Server)
     self.players = {}
+    self.countPlayers = 0
     return self
 end
 
 function Server:tick(event)
-    -- response
-    local state = {
-        id = "tick",
-        data = {
-            tick = event.tick,
-            clients = {}
+    if self.countPlayers > 0 then
+        -- response
+        local state = {
+            id = "tick",
+            data = {
+                tick = event.tick,
+                clients = {}
+            }
         }
-    }
-    for client_id, player in pairs(self.players) do
-        state.data.clients[client_id] = player:pull_data()
-    end
-    -- broadcast
-    for client_id, _ in pairs(self.players) do
-        runtime.unicast(client_id, state)
+        for client_id, player in pairs(self.players) do
+            state.data.clients[client_id] = player:pull_data()
+        end
+        runtime.broadcast(state)
     end
 end
 
@@ -31,6 +31,7 @@ function Server:connected(event)
     print("Client connected, client_id=" .. event.client_id)
     local client_id = event.client_id
     self.players[client_id] = Player.create(client_id);
+    self.countPlayers = self.countPlayers + 1
     runtime.unicast(client_id, {
         id = "connected",
         data = {
@@ -50,6 +51,7 @@ end
 function Server:disconnected(event)
     print("Client disconnected, client_id=" .. event.client_id)
     self.players[event.client_id] = nil
+    self.countPlayers = self.countPlayers - 1
 end
 
 return Server

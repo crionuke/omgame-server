@@ -7,18 +7,12 @@ import org.luaj.vm2.LuaValue;
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-public class SendLuaValueEvent extends Event {
+public class BroadcastLuaValueEvent extends Event {
 
-    final long clientId;
     final LuaValue luaValue;
 
-    public SendLuaValueEvent(long clientId, LuaValue luaValue) {
-        this.clientId = clientId;
+    public BroadcastLuaValueEvent(LuaValue luaValue) {
         this.luaValue = luaValue;
-    }
-
-    public long getClientId() {
-        return clientId;
     }
 
     public LuaValue getLuaValue() {
@@ -27,8 +21,6 @@ public class SendLuaValueEvent extends Event {
 
     @Override
     public String toString() {
-        return "SendLuaValueEvent{" +
-                "clientId=" + clientId +
-                '}';
+        return "BroadcastLuaValueEvent{}";
     }
 }

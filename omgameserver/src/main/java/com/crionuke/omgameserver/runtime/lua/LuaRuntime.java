@@ -11,9 +11,12 @@ class LuaRuntime extends LuaEventListener {
     static final Logger LOG = Logger.getLogger(LuaRuntime.class);
 
     final String FUNCTION_UNICAST = "unicast";
+    final String FUNCTION_BROADCAST = "broadcast";
 
     LuaRuntime(RuntimeDispatcher runtimeDispatcher) {
         super();
+
         set(FUNCTION_UNICAST, new LuaUnicastFunction(runtimeDispatcher));
+        set(FUNCTION_BROADCAST, new LuaBroadcastFunction(runtimeDispatcher));
     }
 }

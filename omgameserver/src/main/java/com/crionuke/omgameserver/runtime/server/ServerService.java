@@ -4,10 +4,7 @@ import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
-import com.crionuke.omgameserver.runtime.events.ClientConnectedEvent;
-import com.crionuke.omgameserver.runtime.events.ClientDisconnectedEvent;
-import com.crionuke.omgameserver.runtime.events.MessageEncodedEvent;
-import com.crionuke.omgameserver.runtime.events.ServerReceivedMessageEvent;
+import com.crionuke.omgameserver.runtime.events.*;
 import com.crionuke.omgameserver.websocket.WebSocketDispatcher;
 import com.crionuke.omgameserver.websocket.events.WebSocketMessageReceivedEvent;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionClosedEvent;
@@ -61,9 +58,12 @@ public class ServerService extends Handler {
 
         Multi<Event> runtimeEvents = runtimeDispatcher.getMulti()
                 .emitOn(getSelfExecutor());
-        runtimeEvents.filter(event -> event instanceof MessageEncodedEvent)
-                .onItem().castTo(MessageEncodedEvent.class).subscribe()
+        runtimeEvents.filter(event -> event instanceof UnicastMessageEncodedEvent)
+                .onItem().castTo(UnicastMessageEncodedEvent.class).subscribe()
                 .with(event -> handleMessageEncodedEvent(event));
+        runtimeEvents.filter(event -> event instanceof BroadcastMessageEncodedEvent)
+                .onItem().castTo(BroadcastMessageEncodedEvent.class).subscribe()
+                .with(event -> handleBroadcastMessageEncodedEvent(event));
     }
 
     void handleWebSocketSessionOpenedEvent(WebSocketSessionOpenedEvent event) {
@@ -118,7 +118,7 @@ public class ServerService extends Handler {
         }
     }
 
-    void handleMessageEncodedEvent(MessageEncodedEvent event) {
+    void handleMessageEncodedEvent(UnicastMessageEncodedEvent event) {
         long clientId = event.getClientId();
         if (clientTable.contain(clientId)) {
             WebSocketClient client = clientTable.get(clientId);
@@ -126,10 +126,23 @@ public class ServerService extends Handler {
             String message = event.getMessage();
             session.getAsyncRemote().sendText(message);
             if (LOG.isTraceEnabled()) {
-                LOG.tracef("Message sent, clientId=%s, message=%s", clientId, message);
+                LOG.tracef("Unicast message sent, clientId=%s, message=%s", clientId, message);
             }
         } else {
             LOG.warnf("Client not found, clientId=%d", clientId);
+        }
+    }
+
+    void handleBroadcastMessageEncodedEvent(BroadcastMessageEncodedEvent event) {
+        String message = event.getMessage();
+        int count = 0;
+        for (WebSocketClient client : clientTable.get()) {
+            Session session = client.getSession();
+            session.getAsyncRemote().sendText(message);
+            count++;
+        }
+        if (LOG.isTraceEnabled()) {
+            LOG.tracef("Broadcast message sent to %d clients, message=%s", count, message);
         }
     }
 }

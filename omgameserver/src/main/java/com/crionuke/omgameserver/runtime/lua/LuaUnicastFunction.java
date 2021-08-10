@@ -1,7 +1,7 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
-import com.crionuke.omgameserver.runtime.events.SendLuaValueEvent;
+import com.crionuke.omgameserver.runtime.events.UnicastLuaValueEvent;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaBoolean;
 import org.luaj.vm2.LuaValue;
@@ -24,7 +24,7 @@ class LuaUnicastFunction extends TwoArgFunction {
     @Override
     public LuaValue call(LuaValue arg1, LuaValue arg2) {
         long clientId = arg1.checkint();
-        runtimeDispatcher.fire(new SendLuaValueEvent(clientId, arg2));
+        runtimeDispatcher.fire(new UnicastLuaValueEvent(clientId, arg2));
         return LuaBoolean.TRUE;
     }
 }

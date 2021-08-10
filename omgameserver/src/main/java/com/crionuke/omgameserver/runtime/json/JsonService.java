@@ -5,10 +5,7 @@ import com.crionuke.omgameserver.core.Config;
 import com.crionuke.omgameserver.core.Event;
 import com.crionuke.omgameserver.core.Handler;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
-import com.crionuke.omgameserver.runtime.events.MessageDecodedEvent;
-import com.crionuke.omgameserver.runtime.events.MessageEncodedEvent;
-import com.crionuke.omgameserver.runtime.events.SendLuaValueEvent;
-import com.crionuke.omgameserver.runtime.events.ServerReceivedMessageEvent;
+import com.crionuke.omgameserver.runtime.events.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.Startup;
 import io.smallrye.mutiny.Multi;
@@ -47,9 +44,12 @@ public class JsonService extends Handler {
                 .onItem().castTo(ServerReceivedMessageEvent.class).subscribe()
                 .with(event -> handleServerReceivedMessageEvent(event));
 
-        events.filter(event -> event instanceof SendLuaValueEvent)
-                .onItem().castTo(SendLuaValueEvent.class).subscribe()
-                .with(event -> handleSendLuaValueEvent(event));
+        events.filter(event -> event instanceof UnicastLuaValueEvent)
+                .onItem().castTo(UnicastLuaValueEvent.class).subscribe()
+                .with(event -> handleUnicastLuaValueEvent(event));
+        events.filter(event -> event instanceof BroadcastLuaValueEvent)
+                .onItem().castTo(BroadcastLuaValueEvent.class).subscribe()
+                .with(event -> handleBroadcastLuaValueEvent(event));
     }
 
     void handleServerReceivedMessageEvent(ServerReceivedMessageEvent event) {
@@ -68,17 +68,31 @@ public class JsonService extends Handler {
         }
     }
 
-    void handleSendLuaValueEvent(SendLuaValueEvent event) {
+    void handleUnicastLuaValueEvent(UnicastLuaValueEvent event) {
         long clientId = event.getClientId();
         LuaValue luaValue = event.getLuaValue();
         try {
             String message = objectMapper.writeValueAsString(luaValue);
-            runtimeDispatcher.fire(new MessageEncodedEvent(clientId, message));
+            runtimeDispatcher.fire(new UnicastMessageEncodedEvent(clientId, message));
             if (LOG.isTraceEnabled()) {
-                LOG.tracef("LuaValue encoded to json, clientId=%d, luaValue=%s", clientId, luaValue);
+                LOG.tracef("Unicast luaValue encoded to json, clientId=%d, luaValue=%s",
+                        clientId, luaValue);
             }
         } catch (IOException e) {
-            LOG.debugf("Encode LuaValue failed, clientId=%d, %e", clientId, e);
+            LOG.debugf("Encode unicast luaValue failed, clientId=%d, %e", clientId, e);
+        }
+    }
+
+    void handleBroadcastLuaValueEvent(BroadcastLuaValueEvent event) {
+        LuaValue luaValue = event.getLuaValue();
+        try {
+            String message = objectMapper.writeValueAsString(luaValue);
+            runtimeDispatcher.fire(new BroadcastMessageEncodedEvent(message));
+            if (LOG.isTraceEnabled()) {
+                LOG.tracef("Broadcast luaValue encoded to json, luaValue=%s", luaValue);
+            }
+        } catch (IOException e) {
+            LOG.debugf("Encode broadcast luaValue failed, clientId=%d, %e", e);
         }
     }
 }
