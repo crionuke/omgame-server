@@ -1,9 +1,12 @@
 package com.crionuke.omgameserver.core;
 
+import io.smallrye.mutiny.Multi;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -40,6 +43,12 @@ public abstract class Handler {
 
     public Executor getSelfExecutor() {
         return selfExecutor;
+    }
+
+    public <T extends Event> void subscribe(Multi stream, Class<T> clazz, Consumer<T> handler) {
+        stream.filter(event -> clazz.isInstance(event))
+                .onItem().castTo(clazz).subscribe()
+                .with(handler);
     }
 
     class ServiceThreadFactory implements ThreadFactory {

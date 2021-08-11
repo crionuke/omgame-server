@@ -40,26 +40,16 @@ class LuaWorker extends Handler {
                 .streams(getTicks(), runtimeDispatcher.getMulti())
                 .emitOn(getSelfExecutor());
 
-        allEvents.filter(event -> event instanceof TickEvent)
-                .onItem().castTo(TickEvent.class)
-                .subscribe().with(event -> handleTickEvent(event));
+        subscribe(allEvents, TickEvent.class, this::handleTickEvent);
 
         Multi<AddressedEvent> addressedEvents = allEvents.filter(event -> event instanceof AddressedEvent)
                 .onItem().castTo(AddressedEvent.class)
                 .filter(event -> event.getAddress().equals(address));
 
-        addressedEvents.filter(event -> event instanceof StartWorkerEvent)
-                .onItem().castTo(StartWorkerEvent.class)
-                .subscribe().with(event -> handleStartWorkerEvent(event));
-        addressedEvents.filter(event -> event instanceof ClientConnectedEvent)
-                .onItem().castTo(ClientConnectedEvent.class)
-                .subscribe().with(event -> handleClientConnectedEvent(event));
-        addressedEvents.filter(event -> event instanceof MessageDecodedEvent)
-                .onItem().castTo(MessageDecodedEvent.class)
-                .subscribe().with(event -> handleMessageDecodedEvent(event));
-        addressedEvents.filter(event -> event instanceof ClientDisconnectedEvent)
-                .onItem().castTo(ClientDisconnectedEvent.class)
-                .subscribe().with(event -> handleClientDisconnectedEvent(event));
+        subscribe(addressedEvents, StartWorkerEvent.class, this::handleStartWorkerEvent);
+        subscribe(addressedEvents, ClientConnectedEvent.class, this::handleClientConnectedEvent);
+        subscribe(addressedEvents, MessageDecodedEvent.class, this::handleMessageDecodedEvent);
+        subscribe(addressedEvents, ClientDisconnectedEvent.class, this::handleClientDisconnectedEvent);
     }
 
     Multi<Event> getTicks() {

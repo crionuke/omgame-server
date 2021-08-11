@@ -37,19 +37,10 @@ public class JsonService extends Handler {
 
     @PostConstruct
     void postConstruct() {
-        Multi<Event> events = runtimeDispatcher.getMulti()
-                .emitOn(getSelfExecutor());
-
-        events.filter(event -> event instanceof ServerReceivedMessageEvent)
-                .onItem().castTo(ServerReceivedMessageEvent.class).subscribe()
-                .with(event -> handleServerReceivedMessageEvent(event));
-
-        events.filter(event -> event instanceof UnicastLuaValueEvent)
-                .onItem().castTo(UnicastLuaValueEvent.class).subscribe()
-                .with(event -> handleUnicastLuaValueEvent(event));
-        events.filter(event -> event instanceof BroadcastLuaValueEvent)
-                .onItem().castTo(BroadcastLuaValueEvent.class).subscribe()
-                .with(event -> handleBroadcastLuaValueEvent(event));
+        Multi<Event> events = runtimeDispatcher.getMulti().emitOn(getSelfExecutor());
+        subscribe(events, ServerReceivedMessageEvent.class, this::handleServerReceivedMessageEvent);
+        subscribe(events, UnicastLuaValueEvent.class, this::handleUnicastLuaValueEvent);
+        subscribe(events, BroadcastLuaValueEvent.class, this::handleBroadcastLuaValueEvent);
     }
 
     void handleServerReceivedMessageEvent(ServerReceivedMessageEvent event) {

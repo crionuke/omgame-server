@@ -41,29 +41,15 @@ public class ServerService extends Handler {
 
     @PostConstruct
     void postConstruct() {
-        Multi<Event> webSocketEvents = webSocketDispatcher.getMulti()
-                .emitOn(getSelfExecutor());
-        webSocketEvents.filter(event -> event instanceof WebSocketSessionOpenedEvent)
-                .onItem().castTo(WebSocketSessionOpenedEvent.class).subscribe()
-                .with(event -> handleWebSocketSessionOpenedEvent(event));
-        webSocketEvents.filter(event -> event instanceof WebSocketMessageReceivedEvent)
-                .onItem().castTo(WebSocketMessageReceivedEvent.class).subscribe()
-                .with(event -> handleWebSocketMessageReceivedEvent(event));
-        webSocketEvents.filter(event -> event instanceof WebSocketSessionFailedEvent)
-                .onItem().castTo(WebSocketSessionFailedEvent.class).subscribe()
-                .with(event -> handleWebSocketSessionFailedEvent(event));
-        webSocketEvents.filter(event -> event instanceof WebSocketSessionClosedEvent)
-                .onItem().castTo(WebSocketSessionClosedEvent.class).subscribe()
-                .with(event -> handleWebSocketSessionClosedEvent(event));
+        Multi<Event> webSocketEvents = webSocketDispatcher.getMulti().emitOn(getSelfExecutor());
+        subscribe(webSocketEvents, WebSocketSessionOpenedEvent.class, this::handleWebSocketSessionOpenedEvent);
+        subscribe(webSocketEvents, WebSocketMessageReceivedEvent.class, this::handleWebSocketMessageReceivedEvent);
+        subscribe(webSocketEvents, WebSocketSessionFailedEvent.class, this::handleWebSocketSessionFailedEvent);
+        subscribe(webSocketEvents, WebSocketSessionClosedEvent.class, this::handleWebSocketSessionClosedEvent);
 
-        Multi<Event> runtimeEvents = runtimeDispatcher.getMulti()
-                .emitOn(getSelfExecutor());
-        runtimeEvents.filter(event -> event instanceof UnicastMessageEncodedEvent)
-                .onItem().castTo(UnicastMessageEncodedEvent.class).subscribe()
-                .with(event -> handleMessageEncodedEvent(event));
-        runtimeEvents.filter(event -> event instanceof BroadcastMessageEncodedEvent)
-                .onItem().castTo(BroadcastMessageEncodedEvent.class).subscribe()
-                .with(event -> handleBroadcastMessageEncodedEvent(event));
+        Multi<Event> runtimeEvents = runtimeDispatcher.getMulti().emitOn(getSelfExecutor());
+        subscribe(runtimeEvents, UnicastMessageEncodedEvent.class, this::handleMessageEncodedEvent);
+        subscribe(runtimeEvents, BroadcastMessageEncodedEvent.class, this::handleBroadcastMessageEncodedEvent);
     }
 
     void handleWebSocketSessionOpenedEvent(WebSocketSessionOpenedEvent event) {

@@ -45,8 +45,7 @@ public class LuaService extends Handler {
                 // Handle first bootstrap events, next runtime
                 .streams(bootstrapService.getMulti(), runtimeDispatcher.getMulti())
                 .emitOn(getSelfExecutor());
-        events.filter(event -> event instanceof CreateWorkerEvent)
-                .onItem().castTo(CreateWorkerEvent.class).subscribe().with(event -> handleCreateWorkerEvent(event));
+        subscribe(events, CreateWorkerEvent.class, this::handleCreateWorkerEvent);
     }
 
     void handleCreateWorkerEvent(CreateWorkerEvent event) {
