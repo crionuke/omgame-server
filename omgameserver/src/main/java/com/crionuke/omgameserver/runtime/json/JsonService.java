@@ -55,6 +55,7 @@ public class JsonService extends Handler {
                         address, clientId, message);
             }
         } catch (IOException e) {
+            runtimeDispatcher.fire(new DecodeMessageFailedEvent(clientId));
             LOG.debugf("Decode json failed, clientId=%d", clientId);
         }
     }

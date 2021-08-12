@@ -17,6 +17,7 @@ import org.jboss.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
+import java.io.IOException;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -48,14 +49,15 @@ public class ServerService extends Handler {
         subscribe(webSocketEvents, WebSocketSessionClosedEvent.class, this::handleWebSocketSessionClosedEvent);
 
         Multi<Event> runtimeEvents = runtimeDispatcher.getMulti().emitOn(getSelfExecutor());
-        subscribe(runtimeEvents, UnicastMessageEncodedEvent.class, this::handleMessageEncodedEvent);
+        subscribe(runtimeEvents, DecodeMessageFailedEvent.class, this::handleDecodeMessageFailedEvent);
+        subscribe(runtimeEvents, UnicastMessageEncodedEvent.class, this::handleUnicastMessageEncodedEvent);
         subscribe(runtimeEvents, BroadcastMessageEncodedEvent.class, this::handleBroadcastMessageEncodedEvent);
     }
 
     void handleWebSocketSessionOpenedEvent(WebSocketSessionOpenedEvent event) {
         Session session = event.getSession();
         Address address = event.getAddress();
-        WebSocketClient webSocketClient = new WebSocketClient(session);
+        WebSocketClient webSocketClient = new WebSocketClient(session, address);
         clientTable.put(webSocketClient);
         runtimeDispatcher.fire(new ClientConnectedEvent(address, webSocketClient.getId()));
         LOG.infof("Client connected, clientId=%s, sessionId=%s", webSocketClient.getId(), session.getId());
@@ -82,9 +84,9 @@ public class ServerService extends Handler {
             WebSocketClient client = clientTable.get(session);
             clientTable.remove(client);
             Address address = event.getAddress();
-            runtimeDispatcher.fire(new ClientDisconnectedEvent(address, client.getId()));
             LOG.infof("Client disconnected as session failed, clientId=%d, address=%s",
                     client.getId(), address);
+            runtimeDispatcher.fire(new ClientDisconnectedEvent(address, client.getId()));
         } else {
             LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
@@ -96,15 +98,32 @@ public class ServerService extends Handler {
             WebSocketClient client = clientTable.get(session);
             clientTable.remove(client);
             Address address = event.getAddress();
-            runtimeDispatcher.fire(new ClientDisconnectedEvent(address, client.getId()));
             LOG.infof("Client disconnected as session closed, clientId=%d, address=%s",
                     client.getId(), address);
+            runtimeDispatcher.fire(new ClientDisconnectedEvent(address, client.getId()));
         } else {
             LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
     }
 
-    void handleMessageEncodedEvent(UnicastMessageEncodedEvent event) {
+    void handleDecodeMessageFailedEvent(DecodeMessageFailedEvent event) {
+        long clientId = event.getClientId();
+        if (clientTable.contain(clientId)) {
+            WebSocketClient client = clientTable.get(clientId);
+            try {
+                client.getSession().close();
+                Address address = client.getAddress();
+                LOG.infof("Session closed as decode message failed, clientId=%d, address=%s",
+                        client.getId(), address);
+            } catch (IOException e) {
+                LOG.warnf("Close session failed, clientId=%d, %s", clientId, e.getMessage());
+            }
+        } else {
+            LOG.warnf("Client not found, clientId=%d", clientId);
+        }
+    }
+
+    void handleUnicastMessageEncodedEvent(UnicastMessageEncodedEvent event) {
         long clientId = event.getClientId();
         if (clientTable.contain(clientId)) {
             WebSocketClient client = clientTable.get(clientId);

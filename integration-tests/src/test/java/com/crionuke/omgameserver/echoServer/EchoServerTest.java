@@ -28,4 +28,14 @@ public class EchoServerTest extends Assertions {
         }
         webSocketClient.close();
     }
+
+    @Test
+    void decodeFailedTest() throws Exception {
+        WebSocketClient webSocketClient = new WebSocketClient(timeoutInMillis);
+        webSocketClient.connect(webSocketEndpoint);
+        String wrongJson = "{\"uuid\":";
+        webSocketClient.send(wrongJson);
+        String serverResponse = webSocketClient.receive();
+        assertNull(serverResponse);
+    }
 }
