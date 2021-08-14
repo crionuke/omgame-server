@@ -23,7 +23,7 @@ function Server:tick(event)
         for client_id, player in pairs(self.players) do
             state.data.clients[client_id] = player:pull_data()
         end
-        runtime.broadcast(state)
+        omgs.broadcast(state)
     end
 end
 
@@ -32,7 +32,7 @@ function Server:connected(event)
     local client_id = event.client_id
     self.players[client_id] = Player.create(client_id);
     self.countPlayers = self.countPlayers + 1
-    runtime.unicast(client_id, {
+    omgs.unicast(client_id, {
         id = "connected",
         data = {
             client_id = client_id,

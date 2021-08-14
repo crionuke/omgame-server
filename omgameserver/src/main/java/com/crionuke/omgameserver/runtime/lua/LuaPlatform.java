@@ -54,7 +54,7 @@ class LuaPlatform {
         LuaC.install(globals);
         // Override print function to output through logger
         globals.set("print", new LuaPrintFunction(globals));
-        globals.set("runtime", luaRuntime);
+        globals.set("omgs", luaRuntime);
         // Set up the LuaString metatable to be read-only since it is shared across all scripts.
         LuaString.s_metatable = new ReadOnlyLuaTable(LuaString.s_metatable);
         return globals;

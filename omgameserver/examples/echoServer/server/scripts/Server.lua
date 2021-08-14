@@ -16,7 +16,7 @@ end
 function Server:received(event)
     print("Data received, client_id=" .. event.client_id)
     local response = event.data
-    runtime.unicast(event.client_id, response)
+    omgs.unicast(event.client_id, response)
 end
 
 function Server:disconnected(event)
