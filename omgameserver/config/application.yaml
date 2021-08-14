@@ -13,19 +13,23 @@ omgameserver:
     bufferSize: 1024
     jsonService:
       poolSize: 2
-    bootstrapService:
-      initialWorkers:
-        - rootDirectory: "examples/echoServer"
-          mainScript: "server/main.lua"
-          tickEveryMillis: 1000
-          address:
-            tenant: "crionuke"
-            game: "echoserver"
-            worker: "main"
-        - rootDirectory: "examples/hubServer"
-          mainScript: "server/main.lua"
-          tickEveryMillis: 1000
-          address:
-            tenant: "crionuke"
-            game: "hubserver"
-            worker: "main"
+
+"%dev":
+  omgameserver:
+    runtime:
+      bootstrapService:
+        initialWorkers:
+          - rootDirectory: "examples/echoServer"
+            mainScript: "server/main.lua"
+            tickEveryMillis: 1000
+            address:
+              tenant: "crionuke"
+              game: "echoserver"
+              worker: "main"
+          - rootDirectory: "examples/hubServer"
+            mainScript: "server/main.lua"
+            tickEveryMillis: 1000
+            address:
+              tenant: "crionuke"
+              game: "hubserver"
+              worker: "main"
