@@ -28,7 +28,7 @@ function Server:tick(event)
 end
 
 function Server:connected(event)
-    print("Client connected, client_id=" .. event.client_id)
+    omgs.log_info("Client connected, client_id=" .. event.client_id)
     local client_id = event.client_id
     self.players[client_id] = Player.create(client_id);
     self.countPlayers = self.countPlayers + 1
@@ -41,7 +41,7 @@ function Server:connected(event)
 end
 
 function Server:received(event)
-    print("Data received, client_id=" .. event.client_id)
+    omgs.log_debug("Data received, client_id=" .. event.client_id)
     local player = self.players[event.client_id]
     if player then
         player:offer_data(event.data)
@@ -49,7 +49,7 @@ function Server:received(event)
 end
 
 function Server:disconnected(event)
-    print("Client disconnected, client_id=" .. event.client_id)
+    omgs.log_info("Client disconnected, client_id=" .. event.client_id)
     self.players[event.client_id] = nil
     self.countPlayers = self.countPlayers - 1
 end

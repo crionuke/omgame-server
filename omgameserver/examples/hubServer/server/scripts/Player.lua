@@ -5,7 +5,7 @@ function Player.create(client_id)
     local self = setmetatable({}, Player)
     self.client_id = client_id
     self.last_data = nil
-    print("Player created, client_id=" .. client_id)
+    omgs.log_info("Player created, client_id=" .. client_id)
     return self
 end
 

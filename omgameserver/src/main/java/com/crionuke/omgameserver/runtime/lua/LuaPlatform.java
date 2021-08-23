@@ -32,16 +32,17 @@ class LuaPlatform {
     }
 
     public LuaChunk loadChunk(String rootDirectory, String filePath) {
-        LuaRuntime runtime = new LuaRuntime(runtimeDispatcher);
-        Globals userGlobals = createUserGlobals(runtime);
+        Globals userGlobals = createUserGlobals();
+        LuaRuntime luaRuntime = new LuaRuntime(runtimeDispatcher, userGlobals);
+        userGlobals.set("omgs", luaRuntime);
         userGlobals.finder = new LuaResourceFinder(rootDirectory);
         LOG.infof("Load file, rootDirectory=%s, filePath=%s", rootDirectory, filePath);
         LuaValue chunk = userGlobals.load(userGlobals.finder.findResource(filePath),
                 "@" + filePath, "bt", userGlobals);
-        return new LuaChunk(userGlobals, runtime, chunk);
+        return new LuaChunk(userGlobals, luaRuntime, chunk);
     }
 
-    Globals createUserGlobals(LuaRuntime luaRuntime) {
+    Globals createUserGlobals() {
         Globals globals = new Globals();
         globals.load(new JseBaseLib());
         globals.load(new PackageLib());
@@ -54,7 +55,6 @@ class LuaPlatform {
         LuaC.install(globals);
         // Override print function to output through logger
         globals.set("print", new LuaPrintFunction(globals));
-        globals.set("omgs", luaRuntime);
         // Set up the LuaString metatable to be read-only since it is shared across all scripts.
         LuaString.s_metatable = new ReadOnlyLuaTable(LuaString.s_metatable);
         return globals;
