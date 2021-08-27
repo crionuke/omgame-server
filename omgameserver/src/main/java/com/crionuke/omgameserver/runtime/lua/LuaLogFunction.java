@@ -8,7 +8,7 @@ import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
 public class LuaLogFunction extends VarArgFunction {
-    static final Logger LOG = Logger.getLogger(LuaEventListener.class);
+    static final Logger LOG = Logger.getLogger(LuaLogFunction.class);
 
     private final LEVEL logLevel;
     private final LuaValue tostring;

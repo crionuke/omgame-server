@@ -3,12 +3,13 @@ package com.crionuke.omgameserver.runtime.lua;
 import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaTable;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
  * @version 1.0.0
  */
-class LuaRuntime extends LuaEventListener {
+class LuaRuntime extends LuaTable {
     static final Logger LOG = Logger.getLogger(LuaRuntime.class);
 
     final String FUNCTION_UNICAST = "unicast";
