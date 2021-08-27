@@ -16,6 +16,6 @@ public class WebSocketDispatcher extends Dispatcher {
 
     WebSocketDispatcher(Config config) {
         super(config.websocket().bufferSize(), true);
-        LOG.infof("Created");
+        LOG.infof("Created, bufferSize=%d", config.websocket().bufferSize());
     }
 }

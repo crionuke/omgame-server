@@ -32,7 +32,7 @@ public class JsonService extends Handler {
         super(config.runtime().jsonService().poolSize(), JsonService.class.getSimpleName());
         this.runtimeDispatcher = runtimeDispatcher;
         this.objectMapper = objectMapper;
-        LOG.infof("Created");
+        LOG.infof("Created, poolSize=%s", config.runtime().jsonService().poolSize());
     }
 
     @PostConstruct

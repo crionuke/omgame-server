@@ -9,6 +9,8 @@ import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -23,7 +25,9 @@ public class BootstrapService {
 
     BootstrapService(Config config) {
         this.config = config;
-        LOG.infof("Created");
+        LOG.infof("Created, initialWorkers=%s", config.runtime().bootstrapService().initialWorkers().stream()
+                .map(worker -> Paths.get(worker.rootDirectory(), worker.mainScript()))
+                .collect(Collectors.toList()));
     }
 
     public Multi<Event> getMulti() {
