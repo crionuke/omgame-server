@@ -17,23 +17,23 @@ public class LuaPlatformTest extends Assertions {
 
     @Test
     void testLoadScript() {
-        LuaChunk luaChunk = luaPlatform.loadChunk("return_1.lua");
-        assertEquals(1, luaChunk.getChunk().call().checknumber().tolong());
+        LuaChunk luaChunk = luaPlatform.createChunk("return_1.lua");
+        assertEquals(1, luaChunk.call().checknumber().tolong());
     }
 
     @Test
     void testLoadFile() {
         String filePath = "return_1.lua";
-        LuaChunk luaChunk = luaPlatform.loadChunk(filePath);
-        assertEquals(1, luaChunk.getChunk().call().checknumber().tolong());
+        LuaChunk luaChunk = luaPlatform.createChunk(filePath);
+        assertEquals(1, luaChunk.call().checknumber().tolong());
     }
 
     @Test
     void testInterruptScript() throws InterruptedException {
-        LuaChunk luaChunk = luaPlatform.loadChunk("infinity_loop.lua");
+        LuaChunk luaChunk = luaPlatform.createChunk("infinity_loop.lua");
         Thread t = new Thread(() -> {
             try {
-                luaChunk.getChunk().call();
+                luaChunk.call();
             } catch (LuaError e) {
                 e.printStackTrace();
             }

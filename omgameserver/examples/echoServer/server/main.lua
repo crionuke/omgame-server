@@ -1,10 +1,19 @@
-local Server = require("server.scripts.Server")
+function tick(self, event)
+    omgs.log_trace(event.id, event.tick, event.time)
+end
 
-local server = Server.create()
+function connected(self, event)
+    omgs.log_info("Client connected, client_id=" .. event.client_id)
+end
 
-omgs.add_event_listener("tick", server)
-omgs.add_event_listener("connected", server)
-omgs.add_event_listener("received", server)
-omgs.add_event_listener("disconnected", server)
+function received(self, event)
+    omgs.log_debug("Data received, client_id=" .. event.client_id)
+    local response = event.data
+    omgs.unicast(event.client_id, response)
+end
+
+function disconnected(self, event)
+    omgs.log_info("Client disconnected, client_id=" .. event.client_id)
+end
 
 print("EchoServer stared")

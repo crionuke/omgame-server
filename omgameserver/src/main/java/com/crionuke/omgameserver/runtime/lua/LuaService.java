@@ -57,7 +57,7 @@ public class LuaService extends Handler {
             LOG.warnf("Address already taken, address=%s, rootDirectory=%s, mainScript=%s",
                     address, rootDirectory, mainScript);
         } else {
-            LuaChunk luaChunk = luaPlatform.loadChunk(rootDirectory, mainScript);
+            LuaChunk luaChunk = luaPlatform.createChunk(rootDirectory, mainScript);
             LuaWorker luaWorker = new LuaWorker(address, luaChunk, runtimeDispatcher, tickEveryMillis);
             luaWorker.postConstruct();
             routes.put(address, luaWorker);

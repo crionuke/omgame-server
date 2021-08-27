@@ -60,14 +60,14 @@ class LuaWorker extends Handler {
     void handleTickEvent(TickEvent event) {
         long tick = event.getTick();
         long time = event.getTime();
-        LuaTickEvent luaTickEvent = new LuaTickEvent(tick, time);
-        dispatch(luaTickEvent);
+        LuaTickEvent luaEvent = new LuaTickEvent(tick, time);
+        luaChunk.fireEvent(luaEvent);
     }
 
     void handleStartWorkerEvent(StartWorkerEvent event) {
         try {
-            luaChunk.getChunk().call();
-            LOG.infof("Worker started, address=%s", event.getAddress());
+            luaChunk.call();
+            luaChunk.fireEvent(new LuaInitEvent());
         } catch (LuaError luaError) {
             LOG.warnf("Start worker failed, address=%s, reason=%s", address, luaError.getMessage());
         }
@@ -76,7 +76,7 @@ class LuaWorker extends Handler {
     void handleClientConnectedEvent(ClientConnectedEvent event) {
         long clientId = event.getClientId();
         LuaConnectedEvent luaEvent = new LuaConnectedEvent(clientId);
-        dispatch(luaEvent);
+        luaChunk.fireEvent(luaEvent);
         LOG.debugf("Client connected, clientId=%d", clientId);
     }
 
@@ -84,7 +84,7 @@ class LuaWorker extends Handler {
         long clientId = event.getClientId();
         LuaValue luaValue = event.getLuaValue();
         LuaReceivedEvent luaEvent = new LuaReceivedEvent(clientId, luaValue);
-        dispatch(luaEvent);
+        luaChunk.fireEvent(luaEvent);
         if (LOG.isTraceEnabled()) {
             LOG.tracef("Message received, clientId=%d, luaValue=%s", clientId, luaValue);
         }
@@ -93,18 +93,7 @@ class LuaWorker extends Handler {
     void handleClientDisconnectedEvent(ClientDisconnectedEvent event) {
         long clientId = event.getClientId();
         LuaDisconnectedEvent luaEvent = new LuaDisconnectedEvent(clientId);
-        dispatch(luaEvent);
+        luaChunk.fireEvent(luaEvent);
         LOG.debugf("Client disconnected, clientId=%d", clientId);
-    }
-
-    void dispatch(LuaEvent luaEvent) {
-        String eventId = luaEvent.getId();
-        try {
-            luaChunk.getRuntime().dispatch(eventId, luaEvent);
-        } catch (LuaError luaError) {
-            LOG.warnf("Dispatch lua event failed, eventId=%s, address=%s, reason=%s",
-                    eventId, address, luaError.getMessage(), luaError);
-            luaError.printStackTrace();
-        }
     }
 }

@@ -20,8 +20,9 @@ public class LuaJacksonModuleTest extends Assertions {
     @Test
     void testSerializer() throws JsonProcessingException {
         LuaPlatform luaPlatform = new LuaPlatform(new RuntimeDispatcher());
-        LuaChunk luaChunk = luaPlatform.loadChunk("return_test_object.lua");
-        LuaValue luaValue = luaChunk.chunk.call();
+        LuaChunk luaChunk = luaPlatform.createChunk("return_test_object.lua");
+        luaChunk.call();
+        LuaValue luaValue = luaChunk.call();
         // Serializer
         ObjectMapper objectMapper = new ObjectMapper();
         LuaJacksonModule luaJacksonModule = new LuaJacksonModule();

@@ -27,19 +27,16 @@ class LuaPlatform {
         this.runtimeDispatcher = runtimeDispatcher;
     }
 
-    public LuaChunk loadChunk(String filePath) {
-        return this.loadChunk(".", filePath);
+    public LuaChunk createChunk(String filePath) {
+        return this.createChunk(".", filePath);
     }
 
-    public LuaChunk loadChunk(String rootDirectory, String filePath) {
+    public LuaChunk createChunk(String rootDirectory, String filePath) {
         Globals userGlobals = createUserGlobals();
         LuaRuntime luaRuntime = new LuaRuntime(runtimeDispatcher, userGlobals);
         userGlobals.set("omgs", luaRuntime);
         userGlobals.finder = new LuaResourceFinder(rootDirectory);
-        LOG.infof("Load file, rootDirectory=%s, filePath=%s", rootDirectory, filePath);
-        LuaValue chunk = userGlobals.load(userGlobals.finder.findResource(filePath),
-                "@" + filePath, "bt", userGlobals);
-        return new LuaChunk(userGlobals, luaRuntime, chunk);
+        return new LuaChunk(userGlobals, filePath);
     }
 
     Globals createUserGlobals() {
@@ -50,7 +47,6 @@ class LuaPlatform {
         globals.load(new TableLib());
         globals.load(new JseStringLib());
         globals.load(new JseMathLib());
-        // TODO: Loading and compiling scripts from within scripts may also be prohibited
         LoadState.install(globals);
         LuaC.install(globals);
         // Override print function to output through logger

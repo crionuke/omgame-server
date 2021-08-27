@@ -1,6 +1,11 @@
 package com.crionuke.omgameserver.runtime.lua;
 
+import com.crionuke.omgameserver.runtime.lua.events.LuaEvent;
+import com.crionuke.omgameserver.runtime.lua.events.LuaInitEvent;
+import org.jboss.logging.Logger;
 import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
 /**
@@ -8,26 +13,35 @@ import org.luaj.vm2.LuaValue;
  * @version 1.0.0
  */
 class LuaChunk {
+    static final Logger LOG = Logger.getLogger(LuaChunk.class);
 
     final Globals globals;
-    final LuaRuntime runtime;
-    final LuaValue chunk;
+    final String filePath;
+    final LuaValue luaSelf;
 
-    LuaChunk(Globals globals, LuaRuntime runtime, LuaValue chunk) {
+    LuaChunk(Globals globals, String filePath) {
         this.globals = globals;
-        this.runtime = runtime;
-        this.chunk = chunk;
+        this.filePath = filePath;
+        luaSelf = LuaTable.tableOf();
     }
 
-    Globals getGlobals() {
-        return globals;
+    LuaValue call() {
+        LuaValue chunkResult = globals.get("dofile").call(LuaValue.valueOf(filePath));
+        LOG.infof("Chunk started, filePath=%s", filePath);
+        return chunkResult;
     }
 
-    LuaRuntime getRuntime() {
-        return runtime;
-    }
-
-    LuaValue getChunk() {
-        return chunk;
+    void fireEvent(LuaEvent luaEvent) {
+        LuaValue handler = globals.get(luaEvent.getId());
+        if (handler.isnil()) {
+            LOG.tracef("No handler for event, eventId=%s", luaEvent.getId());
+        } else {
+            try {
+                handler.call(luaSelf, luaEvent);
+            } catch (LuaError luaError) {
+                LOG.warnf("Dispatch event failed, eventId=%s, reason=%s",
+                        luaEvent.getId(), luaError.getMessage(), luaError);
+            }
+        }
     }
 }
