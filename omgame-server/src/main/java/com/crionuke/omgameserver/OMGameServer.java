@@ -5,10 +5,10 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
- * @version 1.0.0,
+ * @version 1.0.0
  */
 @QuarkusMain
-public class Omgs {
+public class OMGameServer {
 
     public static void main(String... args) {
         Quarkus.run(args);
