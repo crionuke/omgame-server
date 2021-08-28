@@ -4,7 +4,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.crionuke.omgameserver</groupId>
-    <artifactId>omgameserver</artifactId>
+    <artifactId>omgame-server</artifactId>
     <version>1.0.0</version>
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
