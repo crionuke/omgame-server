@@ -4,10 +4,10 @@ import com.crionuke.omgameserver.core.Address;
 import com.crionuke.omgameserver.core.Config;
 import com.crionuke.omgameserver.runtime.events.CreateWorkerEvent;
 import io.quarkus.runtime.Startup;
-import io.smallrye.mutiny.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.jboss.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -18,24 +18,26 @@ import java.util.stream.Collectors;
  */
 @Startup
 @ApplicationScoped
-public class BootstrapService extends AbstractVerticle {
+public class BootstrapService {
     static final Logger LOG = Logger.getLogger(BootstrapService.class);
 
+    final EventBus eventBus;
     final Config config;
 
-    BootstrapService(Config config) {
+    BootstrapService(EventBus eventBus, Config config) {
+        this.eventBus = eventBus;
         this.config = config;
     }
 
-    @Override
-    public void start(Promise<Void> startPromise) throws Exception {
+    @PostConstruct
+    void postConstruct() {
         for (Config.RuntimeBootstrapServiceInitialWorkerConfig initialWorkerConfig :
                 config.runtime().bootstrapService().initialWorkers()) {
             String rootDirectory = initialWorkerConfig.rootDirectory();
             String mainScript = initialWorkerConfig.mainScript();
             Address address = Address.valueOf(initialWorkerConfig.address());
             int tickEveryMillis = initialWorkerConfig.tickEveryMillis();
-            vertx.eventBus().publish(CreateWorkerEvent.TOPIC,
+            eventBus.publish(CreateWorkerEvent.TOPIC,
                     new CreateWorkerEvent(rootDirectory, mainScript, address, tickEveryMillis));
             LOG.infof("Worker bootstrapped, rootDirectory=%s, mainScript=%s, address=%s",
                     rootDirectory, mainScript, address);
@@ -43,6 +45,5 @@ public class BootstrapService extends AbstractVerticle {
         LOG.infof("Started, initialWorkers=%s", config.runtime().bootstrapService().initialWorkers().stream()
                 .map(worker -> Paths.get(worker.rootDirectory(), worker.mainScript()))
                 .collect(Collectors.toList()));
-        startPromise.complete();
     }
 }

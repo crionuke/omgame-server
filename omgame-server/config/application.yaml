@@ -4,7 +4,7 @@ quarkus:
   log:
     category:
       "com.crionuke.omgameserver":
-        level: INFO
+        level: TRACE
         min-level: TRACE
 omgameserver:
   websocket:

@@ -8,7 +8,6 @@ import com.crionuke.omgameserver.runtime.events.MessageDecodedEvent;
 import com.crionuke.omgameserver.runtime.lua.events.LuaInitEvent;
 import io.quarkus.runtime.Startup;
 import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaError;
 
@@ -24,7 +23,7 @@ import java.util.function.Consumer;
  */
 @Startup
 @ApplicationScoped
-public class LuaService extends AbstractVerticle {
+public class LuaService {
     static final Logger LOG = Logger.getLogger(LuaService.class);
 
     final LuaPlatform luaPlatform;
@@ -35,7 +34,7 @@ public class LuaService extends AbstractVerticle {
         routes = new HashMap<>();
     }
 
-    @ConsumeEvent(value = CreateWorkerEvent.TOPIC, blocking = true)
+    @ConsumeEvent(value = CreateWorkerEvent.TOPIC)
     void handleCreateWorkerEvent(CreateWorkerEvent event) {
         String rootDirectory = event.getRootDirectory();
         String mainScript = event.getMainScript();
@@ -58,19 +57,19 @@ public class LuaService extends AbstractVerticle {
         }
     }
 
-    @ConsumeEvent(value = ClientConnectedEvent.TOPIC, blocking = true)
+    @ConsumeEvent(value = ClientConnectedEvent.TOPIC)
     void handleClientConnectedEvent(ClientConnectedEvent event) {
         route(event.getAddress(), worker -> worker
                 .handleClientConnectedEvent(event));
     }
 
-    @ConsumeEvent(value = MessageDecodedEvent.TOPIC, blocking = true)
+    @ConsumeEvent(value = MessageDecodedEvent.TOPIC)
     void handleMessageDecodedEvent(MessageDecodedEvent event) {
         route(event.getAddress(), worker -> worker
                 .handleMessageDecodedEvent(event));
     }
 
-    @ConsumeEvent(value = ClientDisconnectedEvent.TOPIC, blocking = true)
+    @ConsumeEvent(value = ClientDisconnectedEvent.TOPIC)
     void handleClientDisconnectedEvent(ClientDisconnectedEvent event) {
         route(event.getAddress(), worker -> worker
                 .handleClientDisconnectedEvent(event));

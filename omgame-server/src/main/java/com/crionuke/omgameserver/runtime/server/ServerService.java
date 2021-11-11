@@ -9,6 +9,7 @@ import com.crionuke.omgameserver.websocket.events.WebSocketSessionOpenedEvent;
 import io.quarkus.runtime.Startup;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.vertx.core.AbstractVerticle;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,12 +22,14 @@ import java.io.IOException;
  */
 @Startup
 @ApplicationScoped
-public class ServerService extends AbstractVerticle {
+public class ServerService {
     static final Logger LOG = Logger.getLogger(ServerService.class);
 
+    final EventBus eventBus;
     final WebSocketClientTable clientTable;
 
-    ServerService() {
+    ServerService(EventBus eventBus) {
+        this.eventBus = eventBus;
         clientTable = new WebSocketClientTable();
     }
 
@@ -36,7 +39,7 @@ public class ServerService extends AbstractVerticle {
         Address address = event.getAddress();
         WebSocketClient webSocketClient = new WebSocketClient(session, address);
         clientTable.put(webSocketClient);
-        vertx.eventBus().publish(ClientConnectedEvent.TOPIC,
+        eventBus.publish(ClientConnectedEvent.TOPIC,
                 new ClientConnectedEvent(address, webSocketClient.getId()));
         LOG.infof("Client connected, clientId=%s, sessionId=%s",
                 webSocketClient.getId(), session.getId());
@@ -49,7 +52,7 @@ public class ServerService extends AbstractVerticle {
             WebSocketClient client = clientTable.get(session);
             Address address = event.getAddress();
             String message = event.getMessage();
-            vertx.eventBus().publish(ServerReceivedMessageEvent.TOPIC,
+            eventBus.publish(ServerReceivedMessageEvent.TOPIC,
                     new ServerReceivedMessageEvent(address, client.getId(), message));
             if (LOG.isTraceEnabled()) {
                 LOG.tracef("Message received, clientId=%s, message=%s", client.getId(), message);
@@ -68,7 +71,7 @@ public class ServerService extends AbstractVerticle {
             Address address = event.getAddress();
             LOG.infof("Client disconnected as session failed, clientId=%d, address=%s",
                     client.getId(), address);
-            vertx.eventBus().publish(ClientDisconnectedEvent.TOPIC,
+            eventBus.publish(ClientDisconnectedEvent.TOPIC,
                     new ClientDisconnectedEvent(address, client.getId()));
         } else {
             LOG.warnf("Client not found, sessionId=%s", session.getId());
@@ -84,7 +87,7 @@ public class ServerService extends AbstractVerticle {
             Address address = event.getAddress();
             LOG.infof("Client disconnected as session closed, clientId=%d, address=%s",
                     client.getId(), address);
-            vertx.eventBus().publish(ClientDisconnectedEvent.TOPIC,
+            eventBus.publish(ClientDisconnectedEvent.TOPIC,
                     new ClientDisconnectedEvent(address, client.getId()));
         } else {
             LOG.warnf("Client not found, sessionId=%s", session.getId());
