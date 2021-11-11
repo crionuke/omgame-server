@@ -10,6 +10,8 @@ import javax.websocket.Session;
  */
 public class WebSocketSessionClosedEvent extends WebSocketEvent {
 
+    public static final String TOPIC = "WebSocketSessionClosedEvent";
+
     public WebSocketSessionClosedEvent(Session session, Address address) {
         super(session, address);
     }

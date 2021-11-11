@@ -1,20 +1,16 @@
 package com.crionuke.omgameserver.runtime.server;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Event;
-import com.crionuke.omgameserver.core.Handler;
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.events.*;
-import com.crionuke.omgameserver.websocket.WebSocketDispatcher;
 import com.crionuke.omgameserver.websocket.events.WebSocketMessageReceivedEvent;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionClosedEvent;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionFailedEvent;
 import com.crionuke.omgameserver.websocket.events.WebSocketSessionOpenedEvent;
 import io.quarkus.runtime.Startup;
-import io.smallrye.mutiny.Multi;
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import org.jboss.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
 import java.io.IOException;
@@ -25,51 +21,36 @@ import java.io.IOException;
  */
 @Startup
 @ApplicationScoped
-public class ServerService extends Handler {
+public class ServerService extends AbstractVerticle {
     static final Logger LOG = Logger.getLogger(ServerService.class);
 
-    final WebSocketDispatcher webSocketDispatcher;
-    final RuntimeDispatcher runtimeDispatcher;
     final WebSocketClientTable clientTable;
 
-    ServerService(WebSocketDispatcher webSocketDispatcher, RuntimeDispatcher runtimeDispatcher) {
-        super(ServerService.class.getSimpleName());
-        this.webSocketDispatcher = webSocketDispatcher;
-        this.runtimeDispatcher = runtimeDispatcher;
+    ServerService() {
         clientTable = new WebSocketClientTable();
-        LOG.infof("Created");
     }
 
-    @PostConstruct
-    void postConstruct() {
-        Multi<Event> webSocketEvents = webSocketDispatcher.getMulti().emitOn(getSelfExecutor());
-        subscribe(webSocketEvents, WebSocketSessionOpenedEvent.class, this::handleWebSocketSessionOpenedEvent);
-        subscribe(webSocketEvents, WebSocketMessageReceivedEvent.class, this::handleWebSocketMessageReceivedEvent);
-        subscribe(webSocketEvents, WebSocketSessionFailedEvent.class, this::handleWebSocketSessionFailedEvent);
-        subscribe(webSocketEvents, WebSocketSessionClosedEvent.class, this::handleWebSocketSessionClosedEvent);
-
-        Multi<Event> runtimeEvents = runtimeDispatcher.getMulti().emitOn(getSelfExecutor());
-        subscribe(runtimeEvents, DecodeMessageFailedEvent.class, this::handleDecodeMessageFailedEvent);
-        subscribe(runtimeEvents, UnicastMessageEncodedEvent.class, this::handleUnicastMessageEncodedEvent);
-        subscribe(runtimeEvents, BroadcastMessageEncodedEvent.class, this::handleBroadcastMessageEncodedEvent);
-    }
-
-    void handleWebSocketSessionOpenedEvent(WebSocketSessionOpenedEvent event) {
+    @ConsumeEvent(value = WebSocketSessionOpenedEvent.TOPIC)
+    void handleWebSocketSessionOpenedEvent(final WebSocketSessionOpenedEvent event) {
         Session session = event.getSession();
         Address address = event.getAddress();
         WebSocketClient webSocketClient = new WebSocketClient(session, address);
         clientTable.put(webSocketClient);
-        runtimeDispatcher.fire(new ClientConnectedEvent(address, webSocketClient.getId()));
-        LOG.infof("Client connected, clientId=%s, sessionId=%s", webSocketClient.getId(), session.getId());
+        vertx.eventBus().publish(ClientConnectedEvent.TOPIC,
+                new ClientConnectedEvent(address, webSocketClient.getId()));
+        LOG.infof("Client connected, clientId=%s, sessionId=%s",
+                webSocketClient.getId(), session.getId());
     }
 
-    void handleWebSocketMessageReceivedEvent(WebSocketMessageReceivedEvent event) {
+    @ConsumeEvent(value = WebSocketMessageReceivedEvent.TOPIC)
+    void handleWebSocketMessageReceivedEvent(final WebSocketMessageReceivedEvent event) {
         Session session = event.getSession();
         if (clientTable.contain(session)) {
             WebSocketClient client = clientTable.get(session);
             Address address = event.getAddress();
             String message = event.getMessage();
-            runtimeDispatcher.fire(new ServerReceivedMessageEvent(address, client.getId(), message));
+            vertx.eventBus().publish(ServerReceivedMessageEvent.TOPIC,
+                    new ServerReceivedMessageEvent(address, client.getId(), message));
             if (LOG.isTraceEnabled()) {
                 LOG.tracef("Message received, clientId=%s, message=%s", client.getId(), message);
             }
@@ -78,7 +59,8 @@ public class ServerService extends Handler {
         }
     }
 
-    void handleWebSocketSessionFailedEvent(WebSocketSessionFailedEvent event) {
+    @ConsumeEvent(value = WebSocketSessionFailedEvent.TOPIC)
+    void handleWebSocketSessionFailedEvent(final WebSocketSessionFailedEvent event) {
         Session session = event.getSession();
         if (clientTable.contain(session)) {
             WebSocketClient client = clientTable.get(session);
@@ -86,13 +68,15 @@ public class ServerService extends Handler {
             Address address = event.getAddress();
             LOG.infof("Client disconnected as session failed, clientId=%d, address=%s",
                     client.getId(), address);
-            runtimeDispatcher.fire(new ClientDisconnectedEvent(address, client.getId()));
+            vertx.eventBus().publish(ClientDisconnectedEvent.TOPIC,
+                    new ClientDisconnectedEvent(address, client.getId()));
         } else {
             LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
     }
 
-    void handleWebSocketSessionClosedEvent(WebSocketSessionClosedEvent event) {
+    @ConsumeEvent(value = WebSocketSessionClosedEvent.TOPIC)
+    void handleWebSocketSessionClosedEvent(final WebSocketSessionClosedEvent event) {
         Session session = event.getSession();
         if (clientTable.contain(session)) {
             WebSocketClient client = clientTable.get(session);
@@ -100,13 +84,15 @@ public class ServerService extends Handler {
             Address address = event.getAddress();
             LOG.infof("Client disconnected as session closed, clientId=%d, address=%s",
                     client.getId(), address);
-            runtimeDispatcher.fire(new ClientDisconnectedEvent(address, client.getId()));
+            vertx.eventBus().publish(ClientDisconnectedEvent.TOPIC,
+                    new ClientDisconnectedEvent(address, client.getId()));
         } else {
             LOG.warnf("Client not found, sessionId=%s", session.getId());
         }
     }
 
-    void handleDecodeMessageFailedEvent(DecodeMessageFailedEvent event) {
+    @ConsumeEvent(value = DecodeMessageFailedEvent.TOPIC)
+    void handleDecodeMessageFailedEvent(final DecodeMessageFailedEvent event) {
         long clientId = event.getClientId();
         if (clientTable.contain(clientId)) {
             WebSocketClient client = clientTable.get(clientId);
@@ -123,7 +109,8 @@ public class ServerService extends Handler {
         }
     }
 
-    void handleUnicastMessageEncodedEvent(UnicastMessageEncodedEvent event) {
+    @ConsumeEvent(value = UnicastMessageEncodedEvent.TOPIC)
+    void handleUnicastMessageEncodedEvent(final UnicastMessageEncodedEvent event) {
         long clientId = event.getClientId();
         if (clientTable.contain(clientId)) {
             WebSocketClient client = clientTable.get(clientId);
@@ -138,7 +125,8 @@ public class ServerService extends Handler {
         }
     }
 
-    void handleBroadcastMessageEncodedEvent(BroadcastMessageEncodedEvent event) {
+    @ConsumeEvent(value = BroadcastMessageEncodedEvent.TOPIC)
+    void handleBroadcastMessageEncodedEvent(final BroadcastMessageEncodedEvent event) {
         String message = event.getMessage();
         int count = 0;
         for (WebSocketClient client : clientTable.get()) {

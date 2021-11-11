@@ -9,6 +9,8 @@ import org.luaj.vm2.LuaValue;
  */
 public class BroadcastLuaValueEvent extends Event {
 
+    public static final String TOPIC = "BroadcastLuaValueEvent";
+
     final LuaValue luaValue;
 
     public BroadcastLuaValueEvent(LuaValue luaValue) {

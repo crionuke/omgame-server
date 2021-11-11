@@ -1,6 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LuaC;
@@ -21,10 +21,10 @@ import javax.enterprise.context.ApplicationScoped;
 class LuaPlatform {
     static final Logger LOG = Logger.getLogger(LuaPlatform.class);
 
-    final RuntimeDispatcher runtimeDispatcher;
+    final EventBus eventBus;
 
-    LuaPlatform(RuntimeDispatcher runtimeDispatcher) {
-        this.runtimeDispatcher = runtimeDispatcher;
+    LuaPlatform(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
     public LuaChunk createChunk(String filePath) {
@@ -33,7 +33,7 @@ class LuaPlatform {
 
     public LuaChunk createChunk(String rootDirectory, String filePath) {
         Globals userGlobals = createUserGlobals();
-        LuaRuntime luaRuntime = new LuaRuntime(runtimeDispatcher, userGlobals);
+        LuaRuntime luaRuntime = new LuaRuntime(eventBus, userGlobals);
         userGlobals.set("omgs", luaRuntime);
         userGlobals.finder = new LuaResourceFinder(rootDirectory);
         return new LuaChunk(userGlobals, filePath);

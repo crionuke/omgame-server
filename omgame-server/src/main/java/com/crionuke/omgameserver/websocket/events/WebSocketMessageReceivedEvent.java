@@ -10,6 +10,8 @@ import javax.websocket.Session;
  */
 public class WebSocketMessageReceivedEvent extends WebSocketEvent {
 
+    public static final String TOPIC = "WebSocketMessageReceivedEvent";
+
     final String message;
 
     public WebSocketMessageReceivedEvent(Session session, String message, Address address) {

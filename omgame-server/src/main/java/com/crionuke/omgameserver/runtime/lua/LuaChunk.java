@@ -1,7 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.runtime.lua.events.LuaEvent;
-import com.crionuke.omgameserver.runtime.lua.events.LuaInitEvent;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaError;

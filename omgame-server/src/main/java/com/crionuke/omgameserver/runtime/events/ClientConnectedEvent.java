@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Address;
  */
 public class ClientConnectedEvent extends AddressedEvent {
 
+    public static final String TOPIC = "ClientConnectedEvent";
+
     final long clientId;
 
     public ClientConnectedEvent(Address address, long clientId) {

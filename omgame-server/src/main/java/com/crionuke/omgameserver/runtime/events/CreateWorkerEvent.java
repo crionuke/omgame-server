@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Address;
  */
 public class CreateWorkerEvent extends AddressedEvent {
 
+    public static final String TOPIC = "CreateWorkerEvent";
+
     final String rootDirectory;
     final String mainScript;
     final int tickEveryMillis;

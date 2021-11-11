@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Event;
  */
 public class UnicastMessageEncodedEvent extends Event {
 
+    public static final String TOPIC = "UnicastMessageEncodedEvent";
+
     final long clientId;
     final String message;
 

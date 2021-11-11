@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Event;
  */
 public class TickEvent extends Event {
 
+    public static final String TOPIC = "TickEvent";
+
     long tick;
     long time;
 

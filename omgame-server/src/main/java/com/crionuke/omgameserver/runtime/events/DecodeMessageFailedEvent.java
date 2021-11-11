@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Event;
  */
 public class DecodeMessageFailedEvent extends Event {
 
+    public static final String TOPIC = "DecodeMessageFailedEvent";
+
     final long clientId;
 
     public DecodeMessageFailedEvent(long clientId) {

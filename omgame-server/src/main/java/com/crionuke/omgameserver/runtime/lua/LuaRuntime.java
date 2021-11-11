@@ -1,6 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaTable;
@@ -21,11 +21,11 @@ class LuaRuntime extends LuaTable {
     final String FUNCTION_LOG_DEBUG = "log_debug";
     final String FUNCTION_LOG_TRACE = "log_trace";
 
-    LuaRuntime(RuntimeDispatcher runtimeDispatcher, Globals globals) {
+    LuaRuntime(EventBus eventBus, Globals globals) {
         super();
 
-        set(FUNCTION_UNICAST, new LuaUnicastFunction(runtimeDispatcher));
-        set(FUNCTION_BROADCAST, new LuaBroadcastFunction(runtimeDispatcher));
+        set(FUNCTION_UNICAST, new LuaUnicastFunction(eventBus));
+        set(FUNCTION_BROADCAST, new LuaBroadcastFunction(eventBus));
 
         set(FUNCTION_LOG_ERROR, new LuaLogFunction(globals, LuaLogFunction.LEVEL.ERROR));
         set(FUNCTION_LOG_WARN, new LuaLogFunction(globals, LuaLogFunction.LEVEL.WARN));

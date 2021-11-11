@@ -1,20 +1,22 @@
 package com.crionuke.omgameserver.runtime.lua;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Event;
-import com.crionuke.omgameserver.core.Handler;
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
-import com.crionuke.omgameserver.runtime.bootstrap.BootstrapService;
+import com.crionuke.omgameserver.runtime.events.ClientConnectedEvent;
+import com.crionuke.omgameserver.runtime.events.ClientDisconnectedEvent;
 import com.crionuke.omgameserver.runtime.events.CreateWorkerEvent;
-import com.crionuke.omgameserver.runtime.events.StartWorkerEvent;
+import com.crionuke.omgameserver.runtime.events.MessageDecodedEvent;
+import com.crionuke.omgameserver.runtime.lua.events.LuaInitEvent;
 import io.quarkus.runtime.Startup;
-import io.smallrye.mutiny.Multi;
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import org.jboss.logging.Logger;
+import org.luaj.vm2.LuaError;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+
 
 /**
  * @author Kirill Byvshev (k@byv.sh)
@@ -22,32 +24,18 @@ import java.util.Map;
  */
 @Startup
 @ApplicationScoped
-public class LuaService extends Handler {
+public class LuaService extends AbstractVerticle {
     static final Logger LOG = Logger.getLogger(LuaService.class);
 
-    final BootstrapService bootstrapService;
-    final RuntimeDispatcher runtimeDispatcher;
     final LuaPlatform luaPlatform;
     final Map<Address, LuaWorker> routes;
 
-    LuaService(BootstrapService bootstrapService, LuaPlatform luaPlatform, RuntimeDispatcher runtimeDispatcher) {
-        super(LuaService.class.getSimpleName());
-        this.bootstrapService = bootstrapService;
+    LuaService(LuaPlatform luaPlatform) {
         this.luaPlatform = luaPlatform;
-        this.runtimeDispatcher = runtimeDispatcher;
         routes = new HashMap<>();
-        LOG.infof("Created");
     }
 
-    @PostConstruct
-    void postConstruct() {
-        Multi<Event> events = Multi.createBy().concatenating()
-                // Handle first bootstrap events, next runtime
-                .streams(bootstrapService.getMulti(), runtimeDispatcher.getMulti())
-                .emitOn(getSelfExecutor());
-        subscribe(events, CreateWorkerEvent.class, this::handleCreateWorkerEvent);
-    }
-
+    @ConsumeEvent(value = CreateWorkerEvent.TOPIC, blocking = true)
     void handleCreateWorkerEvent(CreateWorkerEvent event) {
         String rootDirectory = event.getRootDirectory();
         String mainScript = event.getMainScript();
@@ -58,11 +46,41 @@ public class LuaService extends Handler {
                     address, rootDirectory, mainScript);
         } else {
             LuaChunk luaChunk = luaPlatform.createChunk(rootDirectory, mainScript);
-            LuaWorker luaWorker = new LuaWorker(address, luaChunk, runtimeDispatcher, tickEveryMillis);
-            luaWorker.postConstruct();
+            try {
+                luaChunk.call();
+                luaChunk.fireEvent(new LuaInitEvent());
+            } catch (LuaError luaError) {
+                LOG.warnf("Init worker failed, address=%s, reason=%s", address, luaError.getMessage());
+            }
+            LuaWorker luaWorker = new LuaWorker(address, luaChunk, tickEveryMillis);
             routes.put(address, luaWorker);
-            runtimeDispatcher.fire(new StartWorkerEvent(address));
             LOG.infof("Worker created, mainScript=%s, address=%s", mainScript, address);
+        }
+    }
+
+    @ConsumeEvent(value = ClientConnectedEvent.TOPIC, blocking = true)
+    void handleClientConnectedEvent(ClientConnectedEvent event) {
+        route(event.getAddress(), worker -> worker
+                .handleClientConnectedEvent(event));
+    }
+
+    @ConsumeEvent(value = MessageDecodedEvent.TOPIC, blocking = true)
+    void handleMessageDecodedEvent(MessageDecodedEvent event) {
+        route(event.getAddress(), worker -> worker
+                .handleMessageDecodedEvent(event));
+    }
+
+    @ConsumeEvent(value = ClientDisconnectedEvent.TOPIC, blocking = true)
+    void handleClientDisconnectedEvent(ClientDisconnectedEvent event) {
+        route(event.getAddress(), worker -> worker
+                .handleClientDisconnectedEvent(event));
+    }
+
+    void route(Address address, Consumer<LuaWorker> consumer) {
+        if (routes.containsKey(address)) {
+            consumer.accept(routes.get(address));
+        } else {
+            LOG.warnf("Route not found, address=%s", address);
         }
     }
 }

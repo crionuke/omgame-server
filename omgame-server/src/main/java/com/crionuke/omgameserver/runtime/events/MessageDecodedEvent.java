@@ -9,6 +9,8 @@ import org.luaj.vm2.LuaValue;
  */
 public class MessageDecodedEvent extends AddressedEvent {
 
+    public static final String TOPIC = "MessageDecodedEvent";
+
     final long clientId;
     final LuaValue luaValue;
 

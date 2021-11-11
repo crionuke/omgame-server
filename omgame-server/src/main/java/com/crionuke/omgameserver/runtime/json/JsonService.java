@@ -1,18 +1,14 @@
 package com.crionuke.omgameserver.runtime.json;
 
 import com.crionuke.omgameserver.core.Address;
-import com.crionuke.omgameserver.core.Config;
-import com.crionuke.omgameserver.core.Event;
-import com.crionuke.omgameserver.core.Handler;
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.events.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.runtime.Startup;
-import io.smallrye.mutiny.Multi;
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.vertx.core.AbstractVerticle;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaValue;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 
@@ -22,50 +18,44 @@ import java.io.IOException;
  */
 @Startup
 @ApplicationScoped
-public class JsonService extends Handler {
+public class JsonService extends AbstractVerticle {
     static final Logger LOG = Logger.getLogger(JsonService.class);
 
-    final RuntimeDispatcher runtimeDispatcher;
     final ObjectMapper objectMapper;
 
-    JsonService(Config config, RuntimeDispatcher runtimeDispatcher, ObjectMapper objectMapper) {
-        super(config.runtime().jsonService().poolSize(), JsonService.class.getSimpleName());
-        this.runtimeDispatcher = runtimeDispatcher;
+    JsonService(ObjectMapper objectMapper) {
+        // TODO: deploy with config.runtime().jsonService().poolSize() instances
         this.objectMapper = objectMapper;
-        LOG.infof("Created, poolSize=%s", config.runtime().jsonService().poolSize());
     }
 
-    @PostConstruct
-    void postConstruct() {
-        Multi<Event> events = runtimeDispatcher.getMulti().emitOn(getSelfExecutor());
-        subscribe(events, ServerReceivedMessageEvent.class, this::handleServerReceivedMessageEvent);
-        subscribe(events, UnicastLuaValueEvent.class, this::handleUnicastLuaValueEvent);
-        subscribe(events, BroadcastLuaValueEvent.class, this::handleBroadcastLuaValueEvent);
-    }
-
-    void handleServerReceivedMessageEvent(ServerReceivedMessageEvent event) {
+    @ConsumeEvent(value = ServerReceivedMessageEvent.TOPIC)
+    void handleServerReceivedMessageEvent(final ServerReceivedMessageEvent event) {
         Address address = event.getAddress();
         long clientId = event.getClientId();
         String message = event.getMessage();
         try {
             LuaValue luaValue = objectMapper.readValue(message, LuaValue.class);
-            runtimeDispatcher.fire(new MessageDecodedEvent(address, clientId, luaValue));
+            vertx.eventBus().publish(MessageDecodedEvent.TOPIC,
+                    new MessageDecodedEvent(address, clientId, luaValue));
             if (LOG.isTraceEnabled()) {
                 LOG.tracef("LuaValue decoded from json, address=%s, clientId=%d, message=%s",
                         address, clientId, message);
             }
         } catch (IOException e) {
-            runtimeDispatcher.fire(new DecodeMessageFailedEvent(clientId));
+            vertx.eventBus().publish(DecodeMessageFailedEvent.TOPIC,
+                    new DecodeMessageFailedEvent(clientId));
             LOG.debugf("Decode json failed, clientId=%d", clientId);
         }
     }
 
-    void handleUnicastLuaValueEvent(UnicastLuaValueEvent event) {
+    @ConsumeEvent(value = UnicastLuaValueEvent.TOPIC)
+    void handleUnicastLuaValueEvent(final UnicastLuaValueEvent event) {
         long clientId = event.getClientId();
         LuaValue luaValue = event.getLuaValue();
         try {
             String message = objectMapper.writeValueAsString(luaValue);
-            runtimeDispatcher.fire(new UnicastMessageEncodedEvent(clientId, message));
+            vertx.eventBus().publish(UnicastMessageEncodedEvent.TOPIC,
+                    new UnicastMessageEncodedEvent(clientId, message));
             if (LOG.isTraceEnabled()) {
                 LOG.tracef("Unicast luaValue encoded to json, clientId=%d, luaValue=%s",
                         clientId, luaValue);
@@ -75,11 +65,13 @@ public class JsonService extends Handler {
         }
     }
 
+    @ConsumeEvent(value = BroadcastLuaValueEvent.TOPIC)
     void handleBroadcastLuaValueEvent(BroadcastLuaValueEvent event) {
         LuaValue luaValue = event.getLuaValue();
         try {
             String message = objectMapper.writeValueAsString(luaValue);
-            runtimeDispatcher.fire(new BroadcastMessageEncodedEvent(message));
+            vertx.eventBus().publish(BroadcastMessageEncodedEvent.TOPIC,
+                    new BroadcastMessageEncodedEvent(message));
             if (LOG.isTraceEnabled()) {
                 LOG.tracef("Broadcast luaValue encoded to json, luaValue=%s", luaValue);
             }

@@ -9,6 +9,8 @@ import org.luaj.vm2.LuaValue;
  */
 public class UnicastLuaValueEvent extends Event {
 
+    public static final String TOPIC = "UnicastLuaValueEvent";
+
     final long clientId;
     final LuaValue luaValue;
 

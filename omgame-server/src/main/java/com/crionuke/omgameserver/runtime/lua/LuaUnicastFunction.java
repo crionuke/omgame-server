@@ -1,7 +1,7 @@
 package com.crionuke.omgameserver.runtime.lua;
 
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.events.UnicastLuaValueEvent;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import org.jboss.logging.Logger;
 import org.luaj.vm2.LuaBoolean;
 import org.luaj.vm2.LuaValue;
@@ -14,17 +14,17 @@ import org.luaj.vm2.lib.TwoArgFunction;
 class LuaUnicastFunction extends TwoArgFunction {
     static final Logger LOG = Logger.getLogger(LuaUnicastFunction.class);
 
-    final RuntimeDispatcher runtimeDispatcher;
+    final EventBus eventBus;
 
-    LuaUnicastFunction(RuntimeDispatcher runtimeDispatcher) {
+    LuaUnicastFunction(EventBus eventBus) {
         super();
-        this.runtimeDispatcher = runtimeDispatcher;
+        this.eventBus = eventBus;
     }
 
     @Override
     public LuaValue call(LuaValue arg1, LuaValue arg2) {
         long clientId = arg1.checkint();
-        runtimeDispatcher.fire(new UnicastLuaValueEvent(clientId, arg2));
+        eventBus.publish(UnicastLuaValueEvent.TOPIC, new UnicastLuaValueEvent(clientId, arg2));
         return LuaBoolean.TRUE;
     }
 }

@@ -14,7 +14,7 @@ import java.io.IOException;
  * @version 1.0.0
  */
 class LuaValueSerializer extends StdSerializer<LuaValue> {
-    
+
     LuaValueSerializer(Class<LuaValue> clazz) {
         super(clazz);
     }
@@ -28,11 +28,7 @@ class LuaValueSerializer extends StdSerializer<LuaValue> {
     void encode(JsonGenerator jsonGenerator, LuaValue luaValue) throws IOException {
         switch (luaValue.type()) {
             case LuaValue.TBOOLEAN:
-                if (luaValue.checkboolean()) {
-                    jsonGenerator.writeBoolean(true);
-                } else {
-                    jsonGenerator.writeBoolean(false);
-                }
+                jsonGenerator.writeBoolean(luaValue.checkboolean());
                 break;
             case LuaValue.TNUMBER:
                 if (luaValue.isint()) {

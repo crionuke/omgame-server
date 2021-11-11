@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Event;
  */
 public class BroadcastMessageEncodedEvent extends Event {
 
+    public static final String TOPIC = "BroadcastMessageEncodedEvent";
+
     final String message;
 
     public BroadcastMessageEncodedEvent(String message) {

@@ -10,6 +10,8 @@ import javax.websocket.Session;
  */
 public class WebSocketSessionFailedEvent extends WebSocketEvent {
 
+    public static final String TOPIC = "WebSocketSessionFailedEvent";
+
     public WebSocketSessionFailedEvent(Session session, Address address) {
         super(session, address);
     }

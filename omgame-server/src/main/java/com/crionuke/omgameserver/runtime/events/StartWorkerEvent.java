@@ -8,6 +8,8 @@ import com.crionuke.omgameserver.core.Address;
  */
 public class StartWorkerEvent extends AddressedEvent {
 
+    public static final String TOPIC = "StartWorkerEvent";
+
     public StartWorkerEvent(Address address) {
         super(address);
     }
