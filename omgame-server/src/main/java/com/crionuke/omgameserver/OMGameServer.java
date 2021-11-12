@@ -11,6 +11,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 public class OMGameServer {
 
     public static void main(String... args) {
+        Thread.currentThread().setName("omg.s-main-thread-1");
         Quarkus.run(args);
     }
 }
