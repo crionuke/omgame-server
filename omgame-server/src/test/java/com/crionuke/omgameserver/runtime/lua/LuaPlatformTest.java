@@ -1,6 +1,6 @@
 package com.crionuke.omgameserver.runtime.lua;
 
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
+import io.vertx.mutiny.core.Vertx;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ public class LuaPlatformTest extends Assertions {
 
     @BeforeEach
     void beforeEach() {
-        luaPlatform = new LuaPlatform(new RuntimeDispatcher());
+        luaPlatform = new LuaPlatform(Vertx.vertx().eventBus());
     }
 
     @Test

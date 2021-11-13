@@ -1,10 +1,10 @@
 package com.crionuke.omgameserver.runtime.lua;
 
-import com.crionuke.omgameserver.runtime.RuntimeDispatcher;
 import com.crionuke.omgameserver.runtime.json.LuaJacksonModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.mutiny.core.Vertx;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.luaj.vm2.LuaValue;
@@ -19,7 +19,7 @@ public class LuaJacksonModuleTest extends Assertions {
 
     @Test
     void testSerializer() throws JsonProcessingException {
-        LuaPlatform luaPlatform = new LuaPlatform(new RuntimeDispatcher());
+        LuaPlatform luaPlatform = new LuaPlatform(Vertx.vertx().eventBus());
         LuaChunk luaChunk = luaPlatform.createChunk("return_test_object.lua");
         luaChunk.call();
         LuaValue luaValue = luaChunk.call();
@@ -42,7 +42,7 @@ public class LuaJacksonModuleTest extends Assertions {
     }
 
     @Test
-    void testDeserializer() throws JsonProcessingException, URISyntaxException, IOException {
+    void testDeserializer() throws URISyntaxException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         LuaJacksonModule luaJacksonModule = new LuaJacksonModule();
         luaJacksonModule.customize(objectMapper);
